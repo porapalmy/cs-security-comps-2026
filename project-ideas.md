@@ -29,6 +29,6 @@ The overall goal is to evaluate how effective and explainable YARA rules are whe
 
 ## Potential Barriers to Success
 
-- Difficulty in modifying YARA rule code to ensure efficiency and reliability
-- Choosing appropriate tools to create sandboxed virtual machines (e.g., UTM), given a mix of macOS (Intel and Apple Silicon) and Windows users
-- Determining whether to limit the scope to analyzing existing YARA rules if rule modification proves too complex
+- How difficult is it to modify YARA rule code ourselves to make it efficient and reliable?
+- Which programs should we use to create sandboxed virtual machines (like UTM?), given that our group includes macOS (Intel and Apple Silicon) and Windows users? What would be the easiest and most optimal solution for everyone?
+- If modifying the YARA code is too hard, should we just only use and analyze the existing one?
