@@ -33,12 +33,43 @@ The overall goal is to evaluate how effective and explainable YARA rules are whe
 
 ---
 
-# Idea 2: Canaries
+# Idea 2: Observing Canaries: Early Detection Using High-Value Decoy Assets
 
 ## Description
 
+Traditional security systems focus on preventing malware execution through signature-based detection, behavior monitoring, or access control. This project instead explores a deception-based security approach using canaries – intentionally deployed decoy assets that appear valuable but should never be accessed during normal system operation.
+
+A canary is a deceptive artifact or service designed to look valuable but should never be accessed in normal operation. Examples include:
+
+- Fake SSH services
+- Decoy Windows file shares
+- Dummy database credentials
+- Canary documents with embedded callbacks
+- Fake API keys or cloud credentials
+- DNS or HTTP “beacon” tokens
+
+The core of this project would be to investigate whether canary-based deception mechanisms can reliably and early detect malware activity inside a networked environment. So instead of trying to block malware, we would intentionally deploy high-value decoy assets and observe whether malware interacts with them during execution.
+
+Interesting Research Questions:
+
+- Do common malware families interact with decoy assets during execution?
+- How early in the infection lifecycle do canary interactions occur?
+- Which types of canaries are most effective at triggering detection?
+- Can canaries provide actionable early-warning signals before significant damage occurs?
+
 ## Potential Deliverables
+
+- Build Multiple canary types
+- Deploy Canaries onto VMs
+- Execute real Malware samples in VMs to test how our canaries react.
+- Measure detection effectiveness
+- Analyse whether canaries can identify attacks early and whether they can limit damage by enabling rapid response.
 
 ## Testing Methodology
 
+- Run malware samples in a sandboxed virtual machine
+- The idea would be to set up our virtual machine with different canary types and introduce aggressive malware to the system. From here, we would get a sense of how well the canaries respond and mitigate system damage and exposure
+
 ## Potential Problems
+
+- safety concerns because introducing live malware to our computers
