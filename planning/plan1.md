@@ -1,167 +1,128 @@
-## Short description of the project
+# Short Description of the Project
 
 Our project studies how YARA-based malware detection works in practice by combining reverse engineering, rule analysis, and applied detection. We analyze both machine-learning–generated YARA rules and real-world public YARA rules, evaluating how they detect web-delivered malware and phishing kits. By reverse engineering malware samples and mapping YARA rule indicators back to concrete code and artifacts, we aim to make detection results explainable and understandable. As a practical component, we will build a web-based tool that scans submitted files with YARA rules and returns clear explanations of detections, matched indicators, and overall risk.
 
 ---
 
-## List of learning goals
+# List of Learning Goals  
+*What do you want to end up understanding that you don't understand yet?*
 
 By the end of this project, we aim to understand the following concepts and systems that we do not fully understand today:
 
-1) YARA in real-world, web-delivered malware detection  
-
+## 1) YARA in real-world, web-delivered malware detection
 How YARA rules are applied to non-binary artifacts, including:
 - HTML loaders  
 - JavaScript droppers  
 - ZIP archives containing phishing kits or multi-stage payloads  
 
 What distinguishes effective YARA rules for web-delivered threats from rules written for native Windows executables?  
-
 How directory structure, filenames, embedded assets, and script logic are leveraged in YARA-based phishing kit detection.
 
-2) How ML-based YARA rule generators work internally  
-
+## 2) How ML-based YARA rule generators work internally
 What features ML-driven YARA generators extract from files (e.g., strings, opcodes, metadata, file structure).  
-
 How these features are transformed into concrete YARA rule components (strings, hex patterns, conditions).  
-
 Where machine learning decisions end, and heuristic or rule-based logic begins in these systems.  
-
 The strengths and limitations of ML-assisted rule generation compared to manual rule writing.
 
-3) Reverse engineering as a foundation for explainable detection  
-
+## 3) Reverse engineering as a foundation for explainable detection
 How reverse engineering techniques (static analysis in Ghidra) reveal the semantic meaning behind YARA indicators.  
-
 How individual YARA strings, hex patterns, and conditions map to:
-- specific assembly instructions  
-- API calls  
-- embedded configuration data  
-- phishing kit assets or scripts  
+- specific assembly instructions,  
+- API calls,  
+- embedded configuration data,  
+- phishing kit assets or scripts.  
 
 Why malware analysis remains essential even in modern, automated detection pipelines.
 
-4) Detection quality, robustness, and generalization  
-
+## 4) Detection quality, robustness, and generalization
 How well existing YARA rules generalize beyond the exact samples they were written for.  
-
 Which YARA feature types (plain strings, regexes, hex patterns, metadata conditions) contribute most to:
-- reliable detection  
-- low false-positive rates  
-- robustness against minor variants  
+- reliable detection,  
+- low false-positive rates,  
+- robustness against minor variants.  
 
 How YARA compares to simpler string-matching or heuristic baselines when used as a standalone detection engine.
 
-5) Translating low-level signals into user-understandable risk  
-
+## 5) Translating low-level signals into user-understandable risk
 How multiple YARA matches, behavioral heuristics, and file characteristics can be combined into a 0–100 risk score.
 
 ---
 
-## List of development goals
+# List of Development Goals  
+*What features do you want your software to have by the end of the project? You can label some items as “stretch goals”*
 
-Be able to identify numerous different types of malware  
-
-Have a website  
-
-As a stretch/product goal, we will extend the ML YARA generator into a user-facing website that scans URLs and files for malware and returns a complete, explainable report (detections, matched indicators, risk summary, and supporting evidence).
-
-We hope our YARA rules website can have the option to choose which software a person might want to increase the efficiency in different areas of checking for malware.
+- Be able to identify numerous different types of malware  
+- Have a Website  
+- As a stretch/product goal, we will extend the ML YARA generator into a user-facing website that scans URLs and files for malware and returns a complete, explainable report (detections, matched indicators, risk summary, and supporting evidence).  
+- We hope our YARA rules website can have the option to choose which software a person might want to increase the efficiency in different areas of checking for malware.
 
 ---
 
-## Testing, benchmarking, and analysis plan
+# Discussion of Testing and Benchmarking
 
-### Correctness testing
+## Correctness Testing
 - Scan known malware samples with known YARA rules  
 - False positive evaluation  
-- Scan benign datasets of normal websites, PDFs, etc., and count false positives per rule  
+- Scan benign datasets of normal websites, pdfs, etc, and count the false positive per rule  
 
-### Benchmarking
+## Benchmarking
 - Measure scan time across different file types and file sizes  
-- Compare performance between baseline rules and improved ones  
+- Compare performance between the baseline rules and improving ones  
 
-### Website
-- How effective the front end is to users  
-- Ease of use and how frictionless it feels  
+## Website
+- How effective front end is to users  
+- Easy of use and as frictionless as possible  
 
-### YARA generator rules
+## YARA Generator rules
 - Compare its rules to standard good rules  
-- Measure false positives  
-- Evaluate how well it integrates into the website  
+- Low false positives  
+- How well it integrated into the website  
 
 ---
 
-## Rough schedule of development
+# Rough Schedule of Development
 
-### End of Week 3
-- Finish setting up VM/container  
-- Find existing YARA rules that work with website, PDF, and document detection  
-- Set up a working YARA generator  
-- Set up Docker on everyone’s computers (everyone needs to download)  
-- Find 12–15 malware-based YARA rules covering:
-  - website (.js, .html, .py)  
-  - exe  
-  - zip  
-  - pdf  
-  - docx  
+*What steps will you take, and what will be your deadlines? (Keeping in mind parallel work and team allocation)*
 
-Example rule sources:
-- https://github.com/codewatchorg/Burp-Yara-Rules/blob/master/README.md  
-- https://github.com/Yara-Rules/rules/blob/master/malware/APT_APT17.yar  
+## End of Week 3
+- Finish setting up VM/container, finding YARA existing rules that work with websites, pdfs, etc., and setting up a working YARA Generator  
+- Set up our docker on everyone’s computers. Everyone needs to download.  
+- Find 12–15 malware-based YARA rules (website [.js, .html, .py], exe, zips, pdf, docx, etc)  
+- References:  
+  - https://github.com/codewatchorg/Burp-Yara-Rules/blob/master/README.md  
+  - https://github.com/Yara-Rules/rules/blob/master/malware/APT_APT17.yar  
+- Have a good explanation of how the YARA rules work for checking above rules  
+- Palmy has pushed some demonstrations to github for specifically using yara for HTML malware  
+- See if ITS would be willing to lend us laptops?  
 
-- Have a good explanation of how the selected YARA rules work  
-- Review Palmy’s GitHub demonstrations for using YARA on HTML malware  
-- See if ITS would be willing to lend us laptops  
+## Week 4
+- Start with finding commonly existing html/js (website) malwares and pdf malwares (just looking, not downloading yet)  
+- Reverse engineer the common malware to see what is the code for YARA rules we should focus on. Not sure how long will take maybe goes into week 4. Maybe have 2 people focusing on one malware just so we have a better understanding  
+- Jeremy will start to work on the front end of the website  
+- Start downloading malwares into our setup container, feeding a lot of malwares to our yara rules (that we found from the literature reviews and from the YARA generator). Because right now yara rules are not made from a centralized group of people, there can be a lot of discrepancies of what works well or not. So using the malware we found, we can try:
+  - find the efficiency (false positives, false negatives, or etc) of the YARA rules (this is how we define which one is essentially a good yara rule). Read some of this paper to understand how we can go about testing.  
+- Aim to test around 100 malwares in our dockers split between the group members  
+- Analyze how well the yara rules detect the malwares that are run in the dockers  
+- Continue reverse engineering of malware from Week 3 if needed  
 
-### Week 4
-- Find commonly existing HTML/JS (website) malware and PDF malware (researching, not downloading yet)  
-- Reverse engineer common malware to understand what code YARA rules should focus on  
-- Possibly extend reverse engineering into Week 4 if needed  
-- Assign 2 people per malware for deeper understanding  
-- Jeremy starts working on the frontend of the website  
-- Begin downloading malware into the containerized setup  
-- Feed malware samples into existing YARA rules (from literature review and YARA generator)  
+## Week 5
+- After we found the best YARA rules (from literatures and from the Generators) for each malware type (websites or PDFs), we will look at them closely and find ways to improve (if possible usually through making it find the malware on websites), maybe fix the rules itself or extended with different techniques/softwares or entirely switch to auto rule generator  
+- After testing the yara rules, rewrite some of the rules to make them more efficient (and aiming to use Yara evaluators such as Yara evaluator, yaraQA)  
+- Learn how to score the input website/pdf/etc based on the set of yara rules. Random website, take around 30 YARA rules and the website and see what results are given. How we will score from each rule.  
+- Implement some of this scoring front-end onto the website  
 
-Because YARA rules are not written by a centralized group, there are discrepancies in quality. Using the malware samples, we will:
-- Evaluate efficiency (false positives, false negatives, etc.)  
-- Define what makes a “good” YARA rule  
-- Read relevant papers to guide testing methodology  
+## Week 6
+- The draft of website should be done  
+- Learn how to connect our YARA rules to the website we built (backend, how?) Vercel, MongoDB, Supabase, AWS  
+- Discuss with Professor Jeff and fix any loose ends that need to be changed  
 
-- Aim to test ~100 malware samples split across group members  
-- Analyze how well YARA rules detect malware in Docker containers  
-- Continue reverse engineering from Week 3 if necessary  
+> If we get any errors or unexpected issues or new features, the timeline will be pushed by a week.
 
-### Week 5
-- Identify best-performing YARA rules (from literature and generators) for each malware type (websites, PDFs, etc.)  
-- Analyze these rules closely and attempt improvements  
-- Possibly fix or extend rules using additional techniques or tools  
-- Optionally switch entirely to auto rule generation if more effective  
-- Rewrite selected YARA rules to improve efficiency  
-- Use YARA evaluation tools such as:
-  - YARA evaluator  
-  - yaraQA  
+## Week 7
+- Finish our malware detection website, alongside with concluding our projects and writing  
 
-- Learn how to score input websites/PDFs based on rule sets  
-- Example: apply ~30 YARA rules to a single website and analyze results  
-- Decide how each rule contributes to the final score  
-- Implement initial scoring UI on the website  
+## Week 8
+- Present  
 
-### Week 6
-- Complete a draft version of the website  
-- Connect YARA rules to the website backend  
-- Decide backend stack (Vercel, MongoDB, Supabase, AWS)  
-- Discuss progress with Professor Jeff  
-- Fix any loose ends or required changes  
-
-> If errors, unexpected issues, or new features arise, the timeline may be pushed by one week.
-
-### Week 7
-- Finish malware detection website  
-- Finalize analysis and documentation  
-
-### Week 8
-- Present project  
-
-### Week 9
-- Recap and reflect  
+## Week 9
+- Recap and Reflect  
