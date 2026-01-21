@@ -93,18 +93,18 @@ How multiple YARA matches, behavioral heuristics, and file characteristics can b
   - https://github.com/codewatchorg/Burp-Yara-Rules/blob/master/README.md  
   - https://github.com/Yara-Rules/rules/blob/master/malware/APT_APT17.yar  
 - Have a good explanation of how the YARA rules work for checking above rules  
-- Palmy has pushed some demonstrations to github for specifically using yara for HTML malware  
+  - Palmy has pushed some demonstrations to github for specifically using yara for HTML malware  
 - See if ITS would be willing to lend us laptops?  
 
 ## Week 4
 - Start with finding commonly existing html/js (website) malwares and pdf malwares (just looking, not downloading yet)  
 - Reverse engineer the common malware to see what is the code for YARA rules we should focus on. Not sure how long will take maybe goes into week 4. Maybe have 2 people focusing on one malware just so we have a better understanding  
-- Jeremy will start to work on the front end of the website  
-- Start downloading malwares into our setup container, feeding a lot of malwares to our yara rules (that we found from the literature reviews and from the YARA generator). Because right now yara rules are not made from a centralized group of people, there can be a lot of discrepancies of what works well or not. So using the malware we found, we can try:
-  - find the efficiency (false positives, false negatives, or etc) of the YARA rules (this is how we define which one is essentially a good yara rule). Read some of this paper to understand how we can go about testing.  
-- Aim to test around 100 malwares in our dockers split between the group members  
-- Analyze how well the yara rules detect the malwares that are run in the dockers  
-- Continue reverse engineering of malware from Week 3 if needed  
+    - Jeremy will start to work on the front end of the website  
+    - Start downloading malwares into our setup container, feeding a lot of malwares to our yara rules (that we found from the literature reviews and from the YARA generator). Because right now yara rules are not made from a centralized group of people, there can be a lot of discrepancies of what works well or not. So using the malware we found, we can try:
+        - find the efficiency (false positives, false negatives, or etc) of the YARA rules (this is how we define which one is essentially a good yara rule). Read some of this paper to understand how we can go about testing.  
+            - Aim to test around 100 malwares in our dockers split between the group members  
+        - Analyze how well the yara rules detect the malwares that are run in the dockers  
+        - Continue reverse engineering of malware from Week 3 if needed  
 
 ## Week 5
 - After we found the best YARA rules (from literatures and from the Generators) for each malware type (websites or PDFs), we will look at them closely and find ways to improve (if possible usually through making it find the malware on websites), maybe fix the rules itself or extended with different techniques/softwares or entirely switch to auto rule generator  
