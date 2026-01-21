@@ -62,7 +62,8 @@ How multiple YARA matches, behavioral heuristics, and file characteristics can b
 
 ## Correctness Testing
 - Scan known malware samples with known YARA rules  
-- False positive evaluation  
+
+## False positive evaluation  
 - Scan benign datasets of normal websites, pdfs, etc, and count the false positive per rule  
 
 ## Benchmarking
