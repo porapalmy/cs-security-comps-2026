@@ -18,7 +18,9 @@ export default function Scanner() {
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [logs, setLogs] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const logIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -37,10 +39,73 @@ export default function Scanner() {
         }
     };
 
+    const simulateLogs = (type: "file" | "url") => {
+        setLogs([]);
+
+        let hostname = 'target';
+        if (url) {
+            try {
+                hostname = new URL(url).hostname;
+            } catch {
+                try {
+                    hostname = new URL(`https://${url}`).hostname;
+                } catch {
+                    hostname = url;
+                }
+            }
+        }
+
+        const urlLogs = [
+            "Initializing visual engine...",
+            `Resolving host: ${hostname}...`,
+            "Handshaking (TLS 1.3)...",
+            "Fetching DOM content...",
+            "Parsing HTML and scripts...",
+            "Checking against known blocklists...",
+            "Running YARA pattern matching...",
+            "Calculating threat score...",
+            "Finalizing report..."
+        ];
+
+        const fileLogs = [
+            "Uploading file stream...",
+            `Analyzing file entropy (${file?.size ? (file.size / 1024).toFixed(1) + 'KB' : 'unknown'})...`,
+            "Extracting headers...",
+            "Loading YARA ruleset (malware.yar)...",
+            "Scanning binary patterns...",
+            "Verifying signature integrity...",
+            "Compiling risk assessment...",
+            "Finalizing report..."
+        ];
+
+        const selectedLogs = type === 'url' ? urlLogs : fileLogs;
+        let index = 0;
+
+        // Clear existing interval if any
+        if (logIntervalRef.current) clearInterval(logIntervalRef.current);
+
+        logIntervalRef.current = setInterval(() => {
+            if (index < selectedLogs.length) {
+                setLogs(prev => [...prev, selectedLogs[index]]);
+                index++;
+            } else {
+                if (logIntervalRef.current) clearInterval(logIntervalRef.current);
+            }
+        }, 600); // Add a new log every 600ms
+    };
+
     const handleScan = async () => {
         setIsScanning(true);
         setResult(null);
         setError(null);
+
+        const type = activeTab === 'file' && file ? 'file' : (activeTab === 'url' && url ? 'url' : null);
+        if (!type) return;
+
+        simulateLogs(type);
+
+        // Minimum scan time to show some logs
+        const startTime = Date.now();
 
         try {
             const formData = new FormData();
@@ -51,8 +116,6 @@ export default function Scanner() {
             else if (activeTab === 'url' && url) {
                 formData.append('url', url);
                 formData.append('type', 'url');
-            } else {
-                return;
             }
 
             const response = await fetch('/api/scan', {
@@ -66,12 +129,27 @@ export default function Scanner() {
             }
 
             const data = await response.json();
+
+            // Ensure we show logs for at least a few seconds
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 3000) {
+                await new Promise(resolve => setTimeout(resolve, 3000 - elapsed));
+            }
+
+            // Complete the logs
+            setLogs(prev => [...prev, "Scan complete."]);
+
+            // Small delay to let the user see "Scan complete"
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             setResult(data);
 
         } catch (err: any) {
             console.error(err);
             setError(err.message || "Failed to scan. Please try again.");
+            setLogs(prev => [...prev, `Error: ${err.message || "Failed to scan"}`]);
         } finally {
+            if (logIntervalRef.current) clearInterval(logIntervalRef.current);
             setIsScanning(false);
         }
     };
@@ -82,18 +160,22 @@ export default function Scanner() {
                 <div className="flex border-b border-white/10">
                     <button
                         onClick={() => setActiveTab("file")}
+                        disabled={isScanning}
                         className={cn(
                             "flex-1 py-4 text-sm font-medium transition-colors flex items-center justify-center gap-2",
-                            activeTab === "file" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
+                            activeTab === "file" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5",
+                            isScanning && "opacity-50 cursor-not-allowed"
                         )}
                     >
                         <Upload className="w-4 h-4" /> File Scan
                     </button>
                     <button
                         onClick={() => setActiveTab("url")}
+                        disabled={isScanning}
                         className={cn(
                             "flex-1 py-4 text-sm font-medium transition-colors flex items-center justify-center gap-2",
-                            activeTab === "url" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
+                            activeTab === "url" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5",
+                            isScanning && "opacity-50 cursor-not-allowed"
                         )}
                     >
                         <LinkIcon className="w-4 h-4" /> URL Scan
@@ -102,7 +184,43 @@ export default function Scanner() {
 
                 <div className="p-8 min-h-[400px] flex flex-col justify-center">
                     <AnimatePresence mode="wait">
-                        {!result ? (
+                        {isScanning ? (
+                            <motion.div
+                                key="scanning"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="w-full h-full bg-black/80 rounded-xl p-6 font-mono text-sm overflow-hidden border border-white/10 shadow-inner"
+                            >
+                                <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                                    <span className="ml-2 text-xs text-gray-500">Security Terminal</span>
+                                </div>
+                                <div className="space-y-2 h-[250px] overflow-y-auto flex flex-col-reverse">
+                                    {/* Using flex-col-reverse to keep bottom pinned */}
+                                    <div className="flex flex-col gap-1">
+                                        {logs.map((log, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="text-green-400"
+                                            >
+                                                <span className="text-gray-600 mr-2">$</span>
+                                                {log}
+                                            </motion.div>
+                                        ))}
+                                        <motion.div
+                                            animate={{ opacity: [0, 1, 0] }}
+                                            transition={{ repeat: Infinity, duration: 0.8 }}
+                                            className="w-2 h-4 bg-green-500 ml-2"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : !result ? (
                             <motion.div
                                 key="input"
                                 initial={{ opacity: 0, y: 10 }}
@@ -162,15 +280,7 @@ export default function Scanner() {
                                         disabled={isScanning || (activeTab === 'file' && !file) || (activeTab === 'url' && !url)}
                                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium py-4 px-12 rounded-full shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                                     >
-                                        {isScanning ? (
-                                            <>
-                                                <Loader2 className="w-5 h-5 animate-spin" /> Scanning...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Shield className="w-5 h-5" /> Start Scan
-                                            </>
-                                        )}
+                                        <Shield className="w-5 h-5" /> Start Scan
                                     </button>
                                 </div>
                             </motion.div>
