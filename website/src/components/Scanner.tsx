@@ -8,7 +8,59 @@ import { cn } from "@/lib/utils";
 type ScanResult = {
     score: number;
     matches: string[];
+    analysis_log: string[];
+    content_preview: string;
     details?: string;
+};
+
+const THREAT_DESCRIPTIONS: Record<string, { title: string; description: string }> = {
+    // YARA Rules
+    "WEB_JS_Obfuscation_Stack_Medium": {
+        title: "Hidden Malicious Code",
+        description: "The site uses complex techniques to hide its true behavior. This is often done to conceal malware or stealing scripts."
+    },
+    "WEB_Redirect_Primitives_Medium": {
+        title: "Forced Redirect",
+        description: "The site contains code that automatically moves you to a different, potentially dangerous page without your permission."
+    },
+    "WEB_MetaRefresh_Redirect_Medium": {
+        title: "Instant Redirect",
+        description: "Uses a basic HTML trick to immediately send you to another website."
+    },
+    "WEB_Forced_Download_High": {
+        title: "Automatic Download",
+        description: "The site attempts to download a file to your computer instantly. This is a high-risk behavior common in malware distribution."
+    },
+    "WEB_Permission_Abuse_Notifications_Push_High": {
+        title: "Notification Spam",
+        description: "Aggressively attempts to trick you into allowing browser notifications, often used for spam or scams."
+    },
+    "WEB_ClickFraud_AdStuffing_Signals_Low": {
+        title: "Ad Fraud / Hidden Windows",
+        description: "Contains hidden elements or popups often used to generate fake ad clicks or track you without consent."
+    },
+    "Suspicious_Script": {
+        title: "Suspicious Script",
+        description: "Contains script tags that look unusual or dangerous."
+    },
+    "Auto_Redirect": {
+        title: "Automatic Redirect",
+        description: "Code detected that forces your browser to navigate away."
+    },
+    "Hidden_Iframe": {
+        title: "Hidden Webpage (Iframe)",
+        description: "Loads another webpage invisibly in the background, which can be used for attacks."
+    },
+
+    // Python Heuristics
+    "Suspicious Redirects": {
+        title: "Suspicious Redirect",
+        description: "We detected patterns that try to force you to another URL."
+    },
+    "Eval/Obfuscation": {
+        title: "Code Obfuscation",
+        description: "The site is hiding its code to make analysis difficult."
+    }
 };
 
 export default function Scanner() {
@@ -19,6 +71,7 @@ export default function Scanner() {
     const [result, setResult] = useState<ScanResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
+    const [showSource, setShowSource] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const logIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -27,6 +80,7 @@ export default function Scanner() {
             setFile(e.target.files[0]);
             setResult(null);
             setError(null);
+            setShowSource(false);
         }
     };
 
@@ -36,6 +90,7 @@ export default function Scanner() {
             setFile(e.dataTransfer.files[0]);
             setResult(null);
             setError(null);
+            setShowSource(false);
         }
     };
 
@@ -98,6 +153,7 @@ export default function Scanner() {
         setIsScanning(true);
         setResult(null);
         setError(null);
+        setShowSource(false);
 
         const type = activeTab === 'file' && file ? 'file' : (activeTab === 'url' && url ? 'url' : null);
         if (!type) return;
@@ -144,10 +200,11 @@ export default function Scanner() {
 
             setResult(data);
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            setError(err.message || "Failed to scan. Please try again.");
-            setLogs(prev => [...prev, `Error: ${err.message || "Failed to scan"}`]);
+            const errorMessage = err instanceof Error ? err.message : "Failed to scan";
+            setError(errorMessage);
+            setLogs(prev => [...prev, `Error: ${errorMessage}`]);
         } finally {
             if (logIntervalRef.current) clearInterval(logIntervalRef.current);
             setIsScanning(false);
@@ -156,7 +213,7 @@ export default function Scanner() {
 
     return (
         <div className="w-full max-w-3xl mx-auto p-6">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative z-20">
                 <div className="flex border-b border-white/10">
                     <button
                         onClick={() => setActiveTab("file")}
@@ -323,27 +380,74 @@ export default function Scanner() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white/5 rounded-2xl p-6 text-left border border-white/10">
-                                    <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-                                        {result.score > 0 ? <AlertTriangle className="text-yellow-500" /> : <CheckCircle className="text-green-500" />}
-                                        Detection Details
-                                    </h3>
-                                    {result.matches.length > 0 ? (
-                                        <ul className="space-y-2">
-                                            {result.matches.map((match, idx) => (
-                                                <li key={idx} className="flex items-start gap-2 text-red-300 bg-red-500/10 p-2 rounded">
-                                                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-400 block shrink-0"></span>
-                                                    {match}
-                                                </li>
+                                <div className="grid gap-6 text-left">
+                                    <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                                        <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                                            {result.score > 0 ? <AlertTriangle className="text-yellow-500" /> : <CheckCircle className="text-green-500" />}
+                                            Detection Details
+                                        </h3>
+                                        {result.matches.length > 0 ? (
+                                            <ul className="space-y-4">
+                                                {result.matches.map((match, idx) => {
+                                                    const info = THREAT_DESCRIPTIONS[match] || { title: match, description: "Potential security threat detected." };
+                                                    return (
+                                                        <li key={idx} className="flex items-start gap-3 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                                                            <div className="mt-1 w-2 h-2 rounded-full bg-red-400 shrink-0 shadow-[0_0_8px_rgba(248,113,113,0.5)]"></div>
+                                                            <div>
+                                                                <div className="text-red-200 font-bold text-sm tracking-wide">{info.title}</div>
+                                                                <div className="text-xs font-mono text-red-400/70 mt-0.5">{match}</div>
+                                                                <div className="text-gray-400 text-xs mt-1 leading-relaxed">{info.description}</div>
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-400">No specific threats detected.</p>
+                                        )}
+                                    </div>
+
+                                    {/* Analysis Log (Transparency) */}
+                                    <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                                        <h3 className="text-lg font-medium text-white mb-4">Transparency Report</h3>
+                                        <div className="space-y-1 font-mono text-xs max-h-40 overflow-y-auto">
+                                            {result.analysis_log?.map((log, idx) => (
+                                                <div key={idx} className={log.startsWith('❌') ? 'text-red-400' : 'text-gray-400'}>
+                                                    {log}
+                                                </div>
                                             ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-gray-400">No threats detected.</p>
-                                    )}
+                                        </div>
+                                    </div>
+
+                                    {/* Source Code Preview */}
+                                    <div className="bg-white/5 rounded-2xl overflow-hidden border border-white/10">
+                                        <button
+                                            onClick={() => setShowSource(!showSource)}
+                                            className="w-full p-4 flex items-center justify-between text-white hover:bg-white/5 transition-colors"
+                                        >
+                                            <span className="font-medium">Scraped Content Preview</span>
+                                            <span className="text-xs text-gray-400">{showSource ? 'Hide' : 'Show'}</span>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {showSource && (
+                                                <motion.div
+                                                    initial={{ height: 0 }}
+                                                    animate={{ height: 'auto' }}
+                                                    exit={{ height: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <pre className="p-4 bg-black/50 text-xs text-green-400 overflow-x-auto font-mono max-h-60 border-t border-white/10">
+                                                        {result.content_preview || "No content available."}
+                                                    </pre>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
                                 </div>
 
                                 <button
-                                    onClick={() => { setResult(null); setFile(null); setUrl(""); }}
+                                    onClick={() => { setResult(null); setFile(null); setUrl(""); setShowSource(false); }}
                                     className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 mx-auto"
                                 >
                                     <X className="w-4 h-4" /> Start New Scan

@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+# Trigger reload for new YARA rules
 
 # Compile rules on load. In a lambda, this happens on cold start.
 # Path relative to this file: ./rules/malware.yar
@@ -31,6 +32,8 @@ def scan():
     if not rules:
         # Try finding it again (debugging paths in serverless can be tricky)
         return jsonify({"score": 0, "matches": [], "details": "Error: YARA rules not loaded."}), 500
+
+    import re
 
     content = b""
     source = ""
@@ -64,16 +67,55 @@ def scan():
         matches = rules.match(data=content)
         match_names = [m.rule for m in matches]
         
-        # Scoring Logic (naive)
+        # Python-based Heuristic Analysis (for transparency)
+        analysis_log = []
+        heuristics_score = 0
+        decoded_content = ""
+        try:
+            decoded_content = content.decode('utf-8', errors='ignore')
+        except:
+            decoded_content = str(content)
+
+        # 1. Content Preview
+        content_preview = decoded_content[:2000] # First 2KB
+        analysis_log.append("Extracted content preview (2KB)")
+
+        # 2. Heuristic Checks
+        found_heuristics = []
+        
+        # Check 1: Suspicious Redirects (Regex for accuracy)
+        redirect_pattern = re.compile(r'(window\.location\s*=|http-equiv=["\']refresh["\'])', re.IGNORECASE)
+        if redirect_pattern.search(decoded_content):
+            analysis_log.append("❌ Heuristic Failed: Suspicious Redirects (found potential auto-redirect)")
+            heuristics_score += 20
+            found_heuristics.append("Suspicious Redirects")
+        else:
+             analysis_log.append("✅ Heuristic Passed: Suspicious Redirects")
+
+        # Check 2: Obfuscation
+        obfuscation_markers = ["eval(", "unescape(", "document.write("]
+        found_obfuscation = [m for m in obfuscation_markers if m in decoded_content.lower()]
+        if found_obfuscation:
+             analysis_log.append(f"❌ Heuristic Failed: Eval/Obfuscation (found: {', '.join(found_obfuscation)})")
+             heuristics_score += 15
+             found_heuristics.append("Eval/Obfuscation")
+        else:
+             analysis_log.append("✅ Heuristic Passed: Eval/Obfuscation")
+
+        analysis_log.append(f"YARA Analysis: {len(matches)} rules matched")
+
+        # Scoring Logic (Hybrid)
         score = 0
-        if match_names:
-            score = 50 + (len(match_names) * 10)
-            score = min(score, 100)
+        base_score = 50 if match_names else 0
+        score = base_score + (len(match_names) * 10) + heuristics_score
+        score = min(score, 100)
         
         return jsonify({
             "score": score,
-            "matches": match_names,
-            "details": f"Scanned {len(content)} bytes from {source}"
+            "matches": match_names + found_heuristics,
+            "details": f"Scanned {len(content)} bytes from {source}",
+            "analysis_log": analysis_log,
+            "content_preview": content_preview
         })
 
     except Exception as e:
