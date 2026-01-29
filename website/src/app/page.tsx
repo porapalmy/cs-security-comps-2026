@@ -9,7 +9,7 @@ export default function Home() {
 
             <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mb-16 flex-col gap-6">
                 <div className="flex flex-col items-center gap-2">
-                    <div className="text-emerald-500/50 text-xs tracking-[0.2em] uppercase">pre-beta</div>
+                    {/* <div className="text-emerald-500/50 text-xs tracking-[0.2em] uppercase">pre-beta</div> */}
                     <h1 className="text-4xl md:text-7xl font-bold text-white tracking-tighter">
                         <span className="text-emerald-500 mr-4">&gt;</span>
                         YARA_MALWARE_SCANNER
