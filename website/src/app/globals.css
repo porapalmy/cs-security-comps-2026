@@ -18,11 +18,11 @@
   --green-safe: #00e676;
 
   --text-primary: #e8eaed;
-  --text-secondary: #8a8f98;
-  --text-tertiary: #4a4f5a;
+  --text-secondary: #ffffff;
+  --text-tertiary: #ffffff;
 
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.391);
+  --border-hover: rgba(255, 255, 255, 0.461);
   --border-cyan: rgba(0, 229, 255, 0.2);
 }
 

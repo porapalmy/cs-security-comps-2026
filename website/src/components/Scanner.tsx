@@ -538,6 +538,11 @@ export default function Scanner() {
                                                 type="text"
                                                 value={url}
                                                 onChange={(e) => setUrl(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" && url && !isScanning) {
+                                                        handleScan();
+                                                    }
+                                                }}
                                                 placeholder="https://example.com"
                                                 className="w-full rounded-xl py-4 pl-11 pr-4 text-sm transition-all duration-300 outline-none"
                                                 style={{
@@ -583,7 +588,7 @@ export default function Scanner() {
                                             (activeTab === "file" && !file) ||
                                             (activeTab === "url" && !url)
                                         }
-                                        className="relative overflow-hidden font-medium py-3.5 px-10 rounded-xl text-sm transition-all duration-300 flex items-center gap-2.5 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                                        className="relative overflow-hidden font-medium py-3.5 px-10 rounded-xl text-sm transition-all duration-300 flex items-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
                                         style={{
                                             background: "linear-gradient(135deg, var(--cyan), var(--cyan-dim))",
                                             color: "#07080a",
