@@ -1,29 +1,133 @@
+"use client";
+
 import Scanner from "@/components/Scanner";
+import { motion } from "framer-motion";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const stagger = {
+    hidden: {},
+    visible: {
+        transition: { staggerChildren: 0.12, delayChildren: 0.2 },
+    },
+};
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.7, ease },
+    },
+};
+
+const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { duration: 1, ease: "easeOut" as const },
+    },
+};
 
 export default function Home() {
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-24 relative">
-            <div className="scanline" />
-            {/* Vignette effect */}
-            <div className="absolute inset-0 bg-radial-gradient from-transparent to-slate-950 pointer-events-none" />
+        <main className="min-h-screen flex flex-col items-center relative">
+            {/* Background layers */}
+            <div className="bg-mesh" />
+            <div className="grid-overlay" />
 
-            <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mb-16 flex-col gap-6">
-                <div className="flex flex-col items-center gap-2">
-                    {/* <div className="text-emerald-500/50 text-xs tracking-[0.2em] uppercase">pre-beta</div> */}
-                    <h1 className="text-4xl md:text-7xl font-bold text-white tracking-tighter">
-                        <span className="text-emerald-500 mr-4">&gt;</span>
-                        YARA_MALWARE_SCANNER
-                        <span className="animate-pulse text-emerald-500">_</span>
+            {/* Content */}
+            <motion.div
+                className="z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center flex-1"
+                variants={stagger}
+                initial="hidden"
+                animate="visible"
+            >
+                {/* Status badges */}
+                <motion.div
+                    className="flex flex-wrap items-center justify-center gap-3 mb-6"
+                    variants={fadeUp}
+                >
+                    <div className="status-badge">
+                        <span className="dot dot-cyan" />
+                        Powered with YARA
+                    </div>
+                    {/* <div className="status-badge">
+                        <span className="dot dot-green" />
+                        something
+                    </div> */}
+                </motion.div>
+
+                {/* Headline */}
+                <motion.div
+                    className="text-center mb-3"
+                    variants={fadeUp}
+                >
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-[-0.04em] leading-[0.9]"
+                        style={{ fontFamily: "var(--font-instrument), system-ui, sans-serif" }}
+                    >
+                        <span className="text-gradient-white">Malware</span>
+                        <br />
+                        <span className="text-gradient-cyan">Scanner</span>
+                        <span
+                            className="inline-block w-[3px] h-[0.75em] ml-2 align-baseline"
+                            style={{
+                                background: "var(--cyan)",
+                                animation: "typing-cursor 1s step-end infinite",
+                                boxShadow: "0 0 12px var(--cyan-glow)",
+                            }}
+                        />
                     </h1>
+                </motion.div>
+
+                {/* Subtitle */}
+                <motion.p
+                    className="text-center max-w-lg mx-auto mb-8 leading-relaxed"
+                    style={{
+                        color: "var(--text-secondary)",
+                        fontSize: "14px",
+                        fontFamily: "var(--font-instrument), system-ui, sans-serif",
+                    }}
+                    variants={fadeUp}
+                >
+                    via YARA.
+                </motion.p>
+
+                {/* Scanner */}
+                <motion.div className="w-full max-w-3xl" variants={fadeUp}>
+                    <Scanner />
+                </motion.div>
+            </motion.div>
+
+            {/* Footer — pinned to bottom */}
+            <motion.footer
+                className="z-10 pb-5 pt-3 flex flex-col items-center gap-1.5 shrink-0"
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+            >
+                <div
+                    className="flex items-center gap-2 text-[10px] tracking-widest uppercase"
+                    style={{
+                        fontFamily: "var(--font-jetbrains), monospace",
+                        color: "var(--text-tertiary)",
+                    }}
+                >
+                    <span
+                        className="inline-block w-4 h-[1px]"
+                        style={{ background: "var(--text-tertiary)" }}
+                    />
+                    Jeff Ondich&apos;s 2026 CS Security Comps
+                    <span
+                        className="inline-block w-4 h-[1px]"
+                        style={{ background: "var(--text-tertiary)" }}
+                    />
                 </div>
-                
-            </div>
+            </motion.footer>
 
-            <Scanner />
-
-            <footer className="absolute bottom-6 text-slate-600 text-xs font-mono uppercase tracking-widest">
-                Made for Jeff Ondich's 2026 CS Security Comps
-            </footer>
+            {/* Ambient orbs */}
+            <div className="orb orb-cyan" style={{ top: "10%", right: "-5%", animationDelay: "0s" }} />
+            <div className="orb orb-blue" style={{ bottom: "15%", left: "-8%", animationDelay: "-10s" }} />
         </main>
     );
 }
