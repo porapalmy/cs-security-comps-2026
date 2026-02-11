@@ -1,14 +1,37 @@
 from flask import Flask, request, jsonify
 import yara
 import os
+import re
+import socket
+import ipaddress
+from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
+import urllib3
+
+# Suppress InsecureRequestWarning for scanned sites
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def is_safe_url(url):
+    """SSRF protection: block private/loopback/metadata IPs."""
+    try:
+        parsed = urlparse(url)
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        ip = socket.gethostbyname(hostname)
+        ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.is_private or ip_obj.is_loopback:
+            return False
+        if str(ip_obj) == "169.254.169.254":
+            return False
+        return True
+    except Exception:
+        return False
 
 app = Flask(__name__)
-# Trigger reload for new YARA rules
 
-# Compile rules on load. In a lambda, this happens on cold start.
-# Path relative to this file: ./rules/malware.yar
+# Compile rules on load (cold start in serverless)
 RULES_PATH = os.path.join(os.path.dirname(__file__), 'rules', 'malware.yar')
 
 rules = None
@@ -20,20 +43,11 @@ if os.path.exists(RULES_PATH):
 else:
     print(f"Rule file not found at {RULES_PATH}")
 
-from security import is_safe_url
-import urllib3
-
-# Suppress InsecureRequestWarning for scanned sites
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 @app.route('/api/scan', methods=['POST'])
 def scan():
     global rules
     if not rules:
-        # Try finding it again (debugging paths in serverless can be tricky)
         return jsonify({"score": 0, "matches": [], "details": "Error: YARA rules not loaded."}), 500
-
-    import re
 
     content = b""
     source = ""
