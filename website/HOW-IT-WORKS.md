@@ -61,8 +61,11 @@ Both heuristics extract code snippets (±60 chars of context) for evidence, just
 The raw matches are converted into a risk score:
 
 - **Base Logic**: If 0 matches are found, the score is **0** (Safe).
-- **Risk Calculation**: If any matches are found, the score starts at **50** and increases by **10** for every additional rule/heuristic matched, capped at **100**.
-- **Heuristic Bonus**: Suspicious Redirects adds **+20**, Eval/Obfuscation adds **+15** on top of the base.
+- **Risk Calculation**: If any matches are found, the score follows this formula:
+  - **Base Entry**: **50** points for having at least one match.
+  - **Match Multiplier**: **+10** for *every* unique YARA rule or heuristic check that fails.
+  - **Heuristic Bonus**: A failed heuristic adds an extra penalty: **+20** for Suspicious Redirects and **+15** for Eval/Obfuscation.
+- **Cap**: The final score is constrained between 0 and **100**.
 
 ### Severity Levels
 
@@ -107,7 +110,8 @@ The frontend (`Scanner.tsx`) presents results with:
 - **Risk Score Gauge**: Animated circular gauge with color-coded severity.
 - **Detection Detail Cards**: Each detection is a clickable card that expands to show:
   - **What This Means**: Plain-language, non-technical explanation of the threat.
-  - **Captured Evidence**: The actual code snippets from the scan, displayed in styled code blocks.
+  - **Captured Evidence**: The actual code snippets from the scan that triggered the rule.
+  - **YARA Rule Source**: The raw source code of the YARA rule itself, providing full transparency.
   - **Learn More**: Link to a relevant Wikipedia/educational article.
 - **Analysis Log**: Step-by-step breakdown of every check the scanner ran.
 - **Scraped Content Viewer**: Tabbed interface (HTML / JS / CSS) showing the fetched source code.
