@@ -1,6 +1,42 @@
 # Deep Dive: Architecture, Security & Internals
 
-This document provides a comprehensive technical breakdown of the malware scanner's architecture, specifically focusing on security implications, data handling, and the internal mechanics of the YARA detection engine.
+This document provides a comprehensive technical breakdown of the malware scanner's architecture, mapping the conceptual logic directly to the source code files (`page.tsx`, `Scanner.tsx`, `index.py`).
+
+---
+
+## 📂 Codebase Walkthrough
+
+To understand how the scanner works, we must look at how data flows through the specific files in the project.
+
+### 1. The Visual Container: `src/app/page.tsx`
+This file is the **entry point** for the application's frontend.
+- **Role**: It establishes the "Cyber/Security" aesthetic and handles the initial page load.
+- **Key Logic**:
+  - **Layout**: It creates the background environment using CSS classes like `.bg-mesh` and `.grid-overlay` to give the "hacker terminal" feel.
+  - **Orchestration**: It imports the `Scanner` component and places it centrally.
+  - **Animation**: It uses `framer-motion` to sequence the entrance animations (Title fades in `->` Subtitle fades in `->` Scanner slides up).
+
+### 2. The Brain: `src/components/Scanner.tsx`
+This component handles all user interaction and client-side logic.
+- **Role**: It captures user input, simulates the specific "scanning" experience, and visualizes the results.
+- **Key Steps**:
+  1.  **Input Capture**: It manages state for the File Upload (Drag & Drop) and URL Input text field.
+  2.  **Simulation (`simulateLogs`)**: When you click "Scan", this function triggers a timer that generates "fake" progress logs (e.g., *"Resolving host...", "Handshake established..."*). This provides immediate visual feedback while the actual server processes the request.
+  3.  **API Handoff (`handleScan`)**: It packages the file/URL into a `FormData` object and sends an asynchronous `POST` request to `/api/scan`.
+  4.  **Result Rendering**: When the JSON response arrives:
+      - It calculates the color-coded **Severity Gauge**.
+      - It maps technical rule names (e.g., `WEB_JS_Obfuscation`) to human-readable explanations using the `threatDescriptions.ts` data file.
+
+### 3. The Engine: `api/index.py`
+This is the serverless backend (Flask) that performs the heavy lifting.
+- **Role**: It safely fetches content, executes the analysis engine, and calculates risk scores.
+- **Key Functions**:
+  - **`is_safe_url(url)`**: A security function that resolves a hostname to an IP address. It strictly blocks internal IP ranges (like `127.0.0.1` or `192.168.x.x`) to prevent **SSRF** (Server-Side Request Forgery) attacks.
+  - **`scan()` Route**:
+    - **URL Mode**: It uses `requests.get()` to fetch the HTML. Then, it uses `BeautifulSoup` to find all linked `<script>` and CSS files, downloading them (up to 10) to ensure hidden malware in external files is caught.
+    - **File Mode**: It reads the raw bytes directly from the request stream into memory.
+  - **`rules.match()`**: It runs the compiled **YARA** engine against the memory buffer to find signature matches.
+  - **Heuristics**: It runs Python-based Regex checks for patterns like "Redirect Chains" or "Excessive Obfuscation" that YARA might miss.
 
 ---
 
@@ -23,9 +59,12 @@ Users often ask: *"How is my file saved? Is it stored in a database?"*
 
 ### 3. Anonymity & Scraper Mechanics
 *"Will my IP get tracked when I scrape a URL?"*
-- **The Proxy Effect**: When you scan a URL (e.g., `http://malicious-site.com`), **you** do not visit the site—our **server** does.
-- **What the Target Sees**: The malicious website's server logs will see a request coming from our secure cloud infrastructure IP (Vercel/AWS), **not your personal home IP address**.
-- **Your Protection**: This protects you from "drive-by downloads" or IP logging by the malicious actor. You remain safely behind our infrastructure.
+
+- **The Proxy Architecture**: The scan relies on the **backend** (Python) to fetch data, not your web browser. This means malicious JavaScript, auto-downloads, or browser exploits cannot run on your machine because the backend only downloads the *source code* without rendering or executing it.
+
+- **IP Anonymity (Cloud vs. Local)**:
+  - **Deployed (Production)**: If accessing the live website (hosted on Vercel), the target site sees the **cloud server's IP**, keeping your personal IP hidden.
+  - **Localhost (Dev Mode)**: If you are running the code locally on your own machine, the requests originate from **your network**. While you are still safe from code execution (the "Passive Scanning" protection), you **do not** have IP anonymity—the target site will see your IP address.
 
 ---
 
@@ -101,12 +140,12 @@ A JSON object is returned to the frontend.
 
 ```mermaid
 graph TD
-    User[User] -->|Uploads PDF/URL| API[Flask API (RAM Only)]
-    API -->|1. Validation| SSRF[SSRF Protection\n(No internal IPs)]
+    User[User] -->|Uploads PDF/URL| API["Flask API (RAM Only)"]
+    API -->|1. Validation| SSRF["SSRF Protection<br>(No internal IPs)"]
     SSRF -->|2. Extraction| Bytes[Raw Byte Stream]
     Bytes -->|3. Feed| YARA[YARA Engine]
     Bytes -->|4. Feed| Heur[Python Heuristics]
-    YARA -->|Matches| Score[Scoring Algo]
+    YARA -->|Matches| Score[Scoring Logic]
     Heur -->|Matches| Score
     Score -->|JSON Result| Frontend[React UI]
     API -.->|Garbage Collection| Void((Deleted))
