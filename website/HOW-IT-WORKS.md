@@ -147,6 +147,6 @@ graph TD
     Bytes -->|4. Feed| Heur[Python Heuristics]
     YARA -->|Matches| Score[Scoring Logic]
     Heur -->|Matches| Score
-    Score -->|JSON Result| Frontend[React UI]
+    Score -->|JSON Result| Frontend[Frontend UI]
     API -.->|Garbage Collection| Void((Deleted))
 ```
