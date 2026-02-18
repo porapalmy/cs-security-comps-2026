@@ -87,58 +87,107 @@ def scan():
             from urllib.parse import urljoin
             soup = BeautifulSoup(html_content, 'html.parser')
             
-            js_assets = []   # list of (name, content_bytes)
-            css_assets = []  # list of (name, content_bytes)
-
-            for tag in soup.find_all('script', src=True):
-                asset_url = urljoin(url, tag['src'])
+            # Prepare assets for parallel scanning
+            assets_to_scan = []
+            
+            # 1. Collect Scripts
+            for tag in soup.find_all('script', src=True)[:10]:
+                assets_to_scan.append(('js', tag['src']))
+            
+            # 2. Collect CSS
+            for tag in soup.find_all('link', rel='stylesheet', href=True)[:10]:
+                assets_to_scan.append(('css', tag['href']))
+            
+            # Helper for parallel execution
+            def process_asset(asset_type, asset_path):
                 try:
-                    if is_safe_url(asset_url):
-                        r = requests.get(asset_url, timeout=3, headers=req_headers, verify=False)
-                        js_assets.append((tag['src'], r.content))
+                    full_url = urljoin(url, asset_path)
+                    if not is_safe_url(full_url): return None
+                    
+                    # Strict 2s timeout for assets
+                    r = requests.get(full_url, timeout=2, headers=req_headers, verify=False)
+                    if r.status_code != 200: return None
+                    
+                    # Size limit: 500KB per asset to prevent hanging on huge files
+                    if len(r.content) > 500 * 1024: return None
+                    
+                    content_text = r.content.decode('utf-8', errors='ignore')
+                    
+                    # YARA Scan
+                    matches = rules.match(data=r.content)
+                    results = []
+                    
+                    for m in matches:
+                        snippets = []
+                        for string_match in m.strings:
+                            for instance in string_match.instances:
+                                offset = instance.offset
+                                start = max(0, offset - 60)
+                                end = min(len(content_text), offset + len(instance.matched_data) + 60)
+                                snip = content_text[start:end].strip()
+                                if snip and len(snippets) < 3:
+                                    snippets.append(snip)
+                        results.append({"rule": m.rule, "snippets": snippets, "yaraRule": rule_sources.get(m.rule)})
+                        
+                    return {
+                        "type": asset_type,
+                        "name": asset_path.split('/')[-1] or "asset",
+                        "content": content_text[:2000], 
+                        "matches": results,
+                        "bytes": r.content
+                    }
                 except Exception:
-                    pass
+                    return None
 
-            for tag in soup.find_all('link', rel='stylesheet', href=True):
-                asset_url = urljoin(url, tag['href'])
-                try:
-                    if is_safe_url(asset_url):
-                        r = requests.get(asset_url, timeout=3, headers=req_headers, verify=False)
-                        css_assets.append((tag['href'], r.content))
-                except Exception:
-                    pass
+            # Execute parallel fetches
+            asset_contents_bytes = []
+            match_details = []
+            
+            # YARA Scan on Main HTML
+            decoded_html = html_content.decode('utf-8', errors='ignore')
+            for m in rules.match(data=html_content):
+                snippets = []
+                for string_match in m.strings:
+                    for instance in string_match.instances:
+                        offset = instance.offset
+                        start = max(0, offset - 60)
+                        end = min(len(decoded_html), offset + len(instance.matched_data) + 60)
+                        snip = decoded_html[start:end].strip()
+                        if snip and len(snippets) < 3:
+                            snippets.append(snip)
+                match_details.append({"rule": m.rule, "snippets": snippets, "yaraRule": rule_sources.get(m.rule)})
+
+            # Content Preview Skeleton
+            content_preview = {
+                "html": decoded_html[:4000],
+                "js": [],
+                "css": []
+            }
+
+            # Run Threads
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                future_to_url = {executor.submit(process_asset, t, p): p for t, p in assets_to_scan}
+                for future in concurrent.futures.as_completed(future_to_url):
+                    data = future.result()
+                    if data:
+                        # Append Results
+                        if data['matches']:
+                            match_details.extend(data['matches'])
+                        
+                        # Add to Preview
+                        if data['type'] == 'js':
+                            content_preview['js'].append({"name": data['name'], "content": data['content']})
+                        elif data['type'] == 'css':
+                            content_preview['css'].append({"name": data['name'], "content": data['content']})
+                            
+                        # Keep bytes for Heuristics
+                        asset_contents_bytes.append(data['bytes'])
 
             # Combine all content for heuristics
             content = html_content
-            for _, asset_bytes in js_assets + css_assets:
-                content += b"\n" + asset_bytes
-
-            # Build structured content preview (object, not string)
-            html_decoded = html_content.decode('utf-8', errors='ignore')
-            content_preview = {
-                "html": html_decoded[:4000],
-                "js": [{"name": name, "content": data.decode('utf-8', errors='ignore')[:2000]} for name, data in js_assets[:10]],
-                "css": [{"name": name, "content": data.decode('utf-8', errors='ignore')[:2000]} for name, data in css_assets[:10]],
-            }
-
-            # Scan each resource individually (respects filesize-based YARA rules)
-            all_matches = {}  # rule -> list of snippet strings
-            for resource_bytes in [html_content] + [d for _, d in js_assets] + [d for _, d in css_assets]:
-                decoded_resource = resource_bytes.decode('utf-8', errors='ignore')
-                for m in rules.match(data=resource_bytes):
-                    if m.rule not in all_matches:
-                        all_matches[m.rule] = []
-                    # Extract snippets with context
-                    for string_match in m.strings:
-                        for instance in string_match.instances:
-                            offset = instance.offset
-                            start = max(0, offset - 60)
-                            end = min(len(decoded_resource), offset + len(instance.matched_data) + 60)
-                            snippet = decoded_resource[start:end].strip()
-                            if snippet and len(all_matches[m.rule]) < 3:
-                                all_matches[m.rule].append(snippet)
-            
-            match_details = [{"rule": rule, "snippets": snippets, "yaraRule": rule_sources.get(rule)} for rule, snippets in all_matches.items()]
+            for b in asset_contents_bytes:
+                content += b"\n" + b
         
         else:
              return jsonify({"error": "No content provided"}), 400
