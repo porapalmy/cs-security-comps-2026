@@ -1,7 +1,8 @@
 "use client";
 
 import Scanner from "@/components/Scanner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -30,6 +31,7 @@ const fadeIn = {
 };
 
 export default function Home() {
+    const [isAboutOpen, setIsAboutOpen] = useState(false);
     return (
         <main className="min-h-screen flex flex-col items-center relative">
             {/* Background layers */}
@@ -113,17 +115,69 @@ export default function Home() {
                         color: "var(--text-tertiary)",
                     }}
                 >
-                    <span
+                    {/* <span
                         className="inline-block w-4 h-[1px]"
                         style={{ background: "var(--text-tertiary)" }}
                     />
-                    Jeff Ondich&apos;s 2026 CS Security Comps
+                    2026 CS Security Comps
                     <span
                         className="inline-block w-4 h-[1px]"
                         style={{ background: "var(--text-tertiary)" }}
-                    />
+                    /> */}
+
+                    {/* About Button */}
+                    <button
+                        onClick={() => setIsAboutOpen(true)}
+                        className="ml-2 hover:text-[var(--cyan)] transition-colors cursor-pointer"
+                        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+                    >
+                        [ABOUT]
+                    </button>
                 </div>
             </motion.footer>
+
+            {/* About Modal */}
+            <AnimatePresence>
+                {isAboutOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsAboutOpen(false)}
+                        />
+                        {/* Modal Content */}
+                        <motion.div
+                            className="fixed top-1/2 left-1/2 z-[101] w-full max-w-md p-6 rounded-xl border border-[var(--border)] bg-[#0A0A0A] shadow-2xl overflow-hidden"
+                            style={{ x: "-50%", y: "-50%" }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                        >
+                            <div className="absolute inset-0 bg-mesh opacity-20 pointer-events-none" />
+                            <div className="relative z-10 text-center">
+                                <h3 className="text-2xl font-bold mb-4 text-[var(--cyan)]" style={{ fontFamily: "var(--font-instrument)" }}>
+                                    Carleton College Security Comps 2026
+                                </h3>
+                                <p className="text-[var(--text-secondary)] mb-6 leading-relaxed" style={{ fontFamily: "var(--font-jetbrains)" }}>
+                                    Made by <br /> <span className="text-[var(--text-primary)]">Palmy, Rachel, Daniel, Jeremy</span>
+                                    <br />
+                                    Supervised by Jeff Onidch.
+                                </p>
+                                <button
+                                    onClick={() => setIsAboutOpen(false)}
+                                    className="px-6 py-2 rounded-lg bg-[var(--cyan-dim)] text-[var(--cyan)] border border-[var(--cyan-dim)] hover:bg-[var(--cyan)] hover:text-black transition-all font-medium text-sm"
+                                    style={{ fontFamily: "var(--font-jetbrains)" }}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
 
             {/* Ambient orbs */}
             <div className="orb orb-cyan" style={{ top: "10%", right: "-5%", animationDelay: "0s" }} />
