@@ -11,7 +11,7 @@ The system operates as a stateless, serverless-compatible microservice. It is de
 ### The Pipeline Logic (\`api/index.py\`)
 The entire lifecycle of a request is handled within a single execution context in \`scan()\`:
 
-\`\`\`python
+```python
 # api/index.py (Simplified)
 
 @app.route('/api/scan', methods=['POST'])
@@ -33,7 +33,7 @@ def scan():
         "score": score,
         "matches": all_match_details
     })
-\`\`\`
+```
 
 1.  **Ingestion**: `Checking Content-Type` (detecting `multipart/form-data` vs `application/x-www-form-urlencoded`).
 2.  **Normalization**: Converting all inputs into a unified `bytes` buffer.
@@ -53,7 +53,7 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
     - **Security Control**: The resolved IP is compared against `ipaddress.ip_address(ip).is_private`.
     - **Why**: This prevents **SSRF** (Server-Side Request Forgery). Without this, an attacker could request `http://localhost:5000/admin` or `http://169.254.169.254` (AWS Metadata) to steal server secrets.
 
-    \`\`\`python
+    ```python
     # api/index.py
 
     def is_safe_url(url):
@@ -74,15 +74,15 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
             return True
         except Exception:
             return False
-    \`\`\`
+    ```
 
 2.  **HTTP Handshake**:
     - We use `requests.get()` with `verify=False`.
     - **Technical Detail**: We intentionally disable SSL Certificate Verification. Malware sites often use self-signed or expired certificates. A standard browser would block these, but our scanner *must* inspect them.
-    \`\`\`python
+    ```python
     # api/index.py
     resp = requests.get(url, timeout=5, headers=req_headers, verify=False)
-    \`\`\`
+    ```
 
 3.  **DOM Parsing & Recursion**:
     - The HTML content is parsed into a DOM tree using `BeautifulSoup`.
@@ -91,12 +91,12 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
         - It identifies all `<link rel="stylesheet" href="...">` nodes.
         - It resolves relative paths (e.g., `src="/js/app.js"`) to absolute URLs using `urllib.parse.urljoin`.
     - **Constraint**: To prevent DoS (Denial of Service) via infinite recursion, we cap asset fetching at **10 files per type** and impose a **3-second timeout** per request.
-    \`\`\`python
+    ```python
     # api/index.py
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         future_to_url = {executor.submit(process_asset, t, p): p for t, p in assets_to_scan}
-    \`\`\`
+    ```
 
 ### B. File Handling (Memory Safety)
 -   **Multipart Parsing**: The Flask framework parses the incoming standard HTTP POST stream.
@@ -130,7 +130,7 @@ YARA does not "read text." It compares **hexadecimal byte sequences**.
 ### B2. Implementation
 We use the `yara-python` binding to execute the compiled rules against the memory buffer.
 
-\`\`\`python
+```python
 # api/index.py
 
 # 1. Compile Rules on Startup
@@ -144,14 +144,14 @@ for m in matches:
     snippets = []
     for string_match in m.strings:
         # extraction logic...
-\`\`\`
+```
 
 ### C. Condition Evaluation
 YARA rules (in `api/rules/malware.yar`) allow complex boolean logic.
 -   **Byte-Code vs. Text**: YARA compares hexadecimal byte sequences (e.g., `MZ` = `0x4D 0x5A`) rather than just "text."
 -   **Short-Circuiting**: If a rule condition is `filesize < 500KB` and the file is 600KB, the engine stops immediately.
 
-\`\`\`yara
+```yara
 rule Suspicious_Script {
     strings:
         $a = "eval"
@@ -159,7 +159,7 @@ rule Suspicious_Script {
     condition:
         $a and $b
 }
-\`\`\`
+```
 
 ---
 
@@ -172,7 +172,7 @@ While YARA handles known signatures, we use Python `re` (Regular Expressions) fo
 -   **Regex**: `(window\.location\s*=|http-equiv=["']refresh["'])`
 -   **Threshold**: If count `≥ 3`, it implies the page is trying to uncontrollably navigate the user.
 
-\`\`\`python
+```python
 # api/index.py
 
 # Regex matches window.location assignments or meta-refresh tags
@@ -182,14 +182,14 @@ redirect_matches = list(redirect_pattern.finditer(decoded_content))
 if len(redirect_matches) >= 3:
     heuristics_score += 20
     analysis_log.append(f"❌ Heuristic Failed: Suspicious Redirects")
-\`\`\`
+```
 
 ### Obfuscation Entropy
 **The Logic**: Malware authors use "packers" to hide code. This results in high-entropy blocks of random-looking characters.
 -   **Signals**: High density of `eval()`, `unescape()`, and `document.write()`.
 -   **Trigger**: If count `≥ 5`, the code is statistically likely to be obfuscated malicious script.
 
-\`\`\`python
+```python
 # api/index.py
 
 obfuscation_markers = ["eval(", "unescape(", "document.write("]
@@ -198,7 +198,7 @@ obf_count = sum(decoded_content.lower().count(m) for m in obfuscation_markers)
 if obf_count >= 5:
      heuristics_score += 15
      analysis_log.append(f"❌ Heuristic Failed: Eval/Obfuscation")
-\`\`\`
+```
 
 ---
 
@@ -213,13 +213,13 @@ $$ Score = B + (M \times 10) + H $$
 
 The result is capped at 100.
 
-\`\`\`python
+```python
 # api/index.py
 
 base_score = 50 if total_matches > 0 else 0
 score = base_score + (total_matches * 10) + heuristics_score
 score = min(score, 100)
-\`\`\`
+```
 
 ---
 
@@ -230,19 +230,19 @@ Usage of `src/components/Scanner.tsx`. This component manages the UI state and d
 ### State Management
 We use React hooks to manage the file object and the scan results. `useState` holds the `File` object in browser memory.
 
-\`\`\`typescript
+```typescript
 // src/components/Scanner.tsx
 
 const [activeTab, setActiveTab] = useState<"file" | "url">("file");
 const [file, setFile] = useState<File | null>(null);
 const [result, setResult] = useState<ScanResult | null>(null);
 const [logs, setLogs] = useState<string[]>([]);
-\`\`\`
+```
 
 ### Polling Simulation (Optimistic UI)
 Since the backend is extremely fast (milliseconds), we simulate a progress log to give visual feedback. This is a **UI/UX pattern** known as "Optimistic UI," keeping the user engaged during the latency of the server request.
 
-\`\`\`typescript
+```typescript
 // src/components/Scanner.tsx
 
 const simulateLogs = (type: "file" | "url") => {
@@ -259,12 +259,12 @@ const simulateLogs = (type: "file" | "url") => {
         setLogs((prev) => [...prev, selectedLogs[index]]);
     }, 500);
 };
-\`\`\`
+```
 
 ### API Communication
 The file is not sent as JSON. It is sent as `multipart/form-data`, the standard binary transport for HTTP.
 
-\`\`\`typescript
+```typescript
 // src/components/Scanner.tsx
 
 const handleScan = async () => {
@@ -277,7 +277,7 @@ const handleScan = async () => {
     });
     // ...
 };
-\`\`\`
+```
 
 ---
 
@@ -285,7 +285,7 @@ const handleScan = async () => {
 
 The application layout is defined in `src/app/page.tsx`. It orchestrates the transition between the Scanner, Simplified Docs, and this Whitepaper using `framer-motion` for smooth animations.
 
-\`\`\`typescript
+```typescript
 // src/app/page.tsx
 
 export default function Home() {
@@ -309,7 +309,7 @@ export default function Home() {
         </main>
     );
 }
-\`\`\`
+```
 
 ---
 
