@@ -11,6 +11,6 @@ bash
 `chmod 400 CompsServerKey.pem`
 Connect to your instance using the ssh command:
 bash
-`ssh -i "CompsServerKey.pem" ubuntu@18.191.221.152`
+`ssh -i "CompsServerKey.pem" ubuntu@18.188.219.228`
 
 change the username@ipaddress to your username and ip address!
