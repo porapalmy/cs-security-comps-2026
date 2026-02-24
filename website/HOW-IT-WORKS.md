@@ -33,10 +33,15 @@ This is the serverless backend (Flask) that performs the heavy lifting.
 - **Key Functions**:
   - **`is_safe_url(url)`**: A security function that resolves a hostname to an IP address. It strictly blocks internal IP ranges (like `127.0.0.1` or `192.168.x.x`) to prevent **SSRF** (Server-Side Request Forgery) attacks.
   - **`scan()` Route**:
-    - **URL Mode**: It uses `requests.get()` to fetch the HTML. Then, it uses `BeautifulSoup` to find all linked `<script>` and CSS files, downloading them (up to 10) to ensure hidden malware in external files is caught.
+    - **URL Mode**: It uses `requests.get()` to fetch the raw HTML bytes. Then, it uses `BeautifulSoup` to find all linked `<script>` and CSS files, downloading and scanning them **in parallel** using a thread pool.
     - **File Mode**: It reads the raw bytes directly from the request stream into memory.
   - **`rules.match()`**: It runs the compiled **YARA** engine against the memory buffer to find signature matches.
   - **Heuristics**: It runs Python-based Regex checks for patterns like "Redirect Chains" or "Excessive Obfuscation" that YARA might miss.
+
+### 4. The Ruleset: `api/rules/malware.yar`
+This file contains all YARA detection signatures, organized into two categories:
+- **Web-Focused Rules**: Detect threats in HTML/JS/CSS content from URL scans (e.g., phishing keywords, hidden iframes, obfuscated JavaScript, forced downloads).
+- **PE/Executable Family Rules**: Detect known malware families (Emotet, Ryuk, LockBit, WannaCry, etc.) in uploaded `.exe` files. These all require the `MZ` PE header, so they never produce false positives on web content.
 
 ---
 
@@ -72,29 +77,53 @@ Users often ask: *"How is my file saved? Is it stored in a database?"*
 
 The core of the detection logic is [YARA](https://virustotal.github.io/yara/), a battle-tested tool used by malware researchers to identify malware families.
 
-### 1. How YARA Works (Byte-Level Matching)
-YARA is often described as "grep on steroids." It doesn't just look for text; it scans for:
-- **Hexadecimal Patterns**: Specific sequences of bytes that define executable headers or shellcode.
-- **Strings**: Text patterns (ASCII, Unicode, Case-insensitive).
-- **Regex**: Complex regular expressions.
+### 1. How YARA Works (Byte-Level Pattern Matching)
+YARA is often described as "grep on steroids." It scans the raw bytes of a file and matches patterns — **it does not convert strings to hex or modify the content in any way.**
 
-**Example Logic**:
-Instead of "running" a program to see if it seeks admin privileges, YARA looks at the binary code for the *instruction sequence* that requests those privileges.
+Here's what actually happens:
+- **Plain Strings**: When a rule defines `$s1 = "<script>" nocase`, YARA searches the raw byte stream for the exact ASCII sequence (`3C 73 63 72 69 70 74 3E`). The `nocase` modifier tells it to also accept uppercase and mixed-case variants. No conversion happens — the file's bytes are compared directly.
+- **Wide Strings**: The `wide` modifier matches UTF-16 encoding (each char followed by a null byte: `52 00 79 00 75 00 6B 00 ...`), critical for Windows executables which store strings in UTF-16.
+- **Regex Patterns**: Complex expressions like `/window\.location(\.href)?\s*=\s*/` are compiled and matched against the byte stream.
+- **Byte-Level Conditions**: `uint16(0) == 0x5A4D` reads the file's first 2 bytes to check for the `MZ` PE header, ensuring a rule only fires on actual Windows executables.
+
+**The Aho-Corasick Algorithm**: YARA compiles all strings from all rules into a single state machine, scanning the file in a **single linear pass** (O(n)). This means scanning for 100 rules takes roughly the same time as scanning for 1.
 
 ### 2. What We Scan For
-Our integration (`api/rules/malware.yar`) compiles specific signatures:
+Our integration (`api/rules/malware.yar`) contains two categories of signatures:
+
+**Web-Focused Rules** (trigger on URL scans — no PE header requirement):
 
 | Signature Type | Technical Detail | Why It's Flagged |
 |:---|:---|:---|
-| **Magic Bytes** | `MZ` (0x4D 0x5A) at offset 0 | Validates if a file is a Windows Executable (EXE/DLL), checking the file header regardless of extension. |
-| **Obfuscated JS** | `eval(String.fromCharCode(...))` | Detects code that tries to hide itself by decoding payload at runtime. |
-| **Shellcode** | Long strings of hex `\x90\x90...` | Detects "NOP sleds" or buffer overflow payloads often embedded in PDFs. |
-| **Embeds** | `<iframe width=0>` | Detects invisible iframes used to load background malware. |
+| **Obfuscated JS** | `eval(String.fromCharCode(...))` + encoded blobs | Detects code hiding its payload by decoding at runtime |
+| **Phishing Keywords** | "verify your account", "update payment" | Social engineering phrases used to steal credentials |
+| **Hidden Iframes** | `<iframe width=0 height=0>` | Invisible iframes used for drive-by downloads |
+| **Redirect Chains** | Multiple `window.location =` or `meta refresh` | Pages that bounce users through URLs to hide the destination |
+| **Forced Downloads** | Blob URLs + `a[download]` + `.click()` | Scripts that trigger file downloads without user consent |
+| **Permission Abuse** | `Notification.requestPermission` + push subscribe | Pages requesting notification permissions to spam users |
 
-### 3. Testing & Comparison
+**PE/Executable Family Rules** (trigger only on uploaded files with the `MZ` header):
+
+| Family | Type | Key Signatures |
+|:---|:---|:---|
+| **Emotet** | Banking Trojan | `Global\EMOTET` mutex, specific IE7 User-Agent |
+| **Ryuk** | Ransomware | `RyukReadMe.txt`, `.RYK` extension |
+| **LockBit** | Ransomware | `Restore-My-Files.txt`, `.lockbit` extension |
+| **WannaCry** | Ransomware | `WannaDecryptor`, `mssecsvc.exe` |
+| **TrickBot** | Banking Trojan | `TrickLoader`, C2 config fields |
+| **QakBot** | Banking Trojan | `CoreDll.dll`, botnet identifiers |
+| **AgentTesla** | Spyware | SMTP exfiltration strings |
+| **RedLine** | Infostealer | `passwords.txt`, `wallet.dat` targets |
+| **DarkComet** | RAT | `DC_MUTEX`, `DCRAT` identifiers |
+| **Cobalt Strike** | Post-Exploitation | `ReflectiveLoader`, beacon C2 strings |
+
+> **Important**: The PE family rules all require `uint16(0) == 0x5A4D` — the Windows executable header. This means a news article containing the word "LockBit" will **not** trigger a false positive. Only actual PE binaries with those strings embedded in them will match.
+
+### 3. Testing & Rule Scalability
 - **Compilation**: On server start, `yara.compile()` runs. If the syntax is invalid, the server fails safely (logs error, continues without rules).
 - **Matching**: The `rules.match(data=content)` method scans the entire byte buffer. It returns a list of *every* rule that satisfied its condition.
-- **Conditionals**: Rules are smart. A rule might say: *"Flag if 'suspicious_string' appears MORE than 3 times AND file size is < 500KB."*
+- **Transparency**: The backend parses the raw `.yar` file and stores each rule's source text. When a rule matches, the full YARA source is included in the API response, allowing the frontend to show users exactly why a file was flagged.
+- **Adding New Rules**: Simply add a new `rule` block to `malware.yar` and restart the server — no code changes needed. The backend automatically discovers and indexes the new rule.
 
 ---
 
@@ -108,20 +137,26 @@ Here is the exact lifecycle of a scan request (`api/index.py`):
 3. **SSRF Guard**: If URL, the `is_safe_url()` function resolves the hostname.
    - *Security Check*: usage of `socket.gethostbyname` checks if the IP is private (e.g., `127.0.0.1` or `192.168.1.1`). If so, it **aborts**. This prevents attackers from using our scanner to map our internal network.
 
-### Phase 2: Extraction & fetching
-- **For Files**: Bytes are read into variable `content`.
+### Phase 2: Extraction & Fetching
+- **For Files**: Raw bytes are read into variable `content` via `f.read()`.
 - **For URLs**:
-  1. `requests.get()` pulls the HTML.
-  2. `BeautifulSoup` parses the DOM.
-  3. **Recursive Fetching**: The scanner finds all `<script src="...">` and `<link href="...">` tags.
-  4. It downloads those external assets (up to 10 of each) to analyze the *actual code* running on the page, not just the HTML skeleton.
+  1. `requests.get()` pulls the raw HTML bytes.
+  2. `BeautifulSoup` parses the DOM tree.
+  3. **Asset Discovery**: The scanner finds all `<script src="...">` (up to 10) and `<link href="...">` (up to 10) tags.
+  4. **Parallel Fetching & Scanning**: A `ThreadPoolExecutor` with 10 workers fetches and YARA-scans each asset concurrently. Each worker:
+     - Validates the asset URL through `is_safe_url()` (SSRF check)
+     - Enforces a 2-second timeout
+     - Rejects assets larger than 500KB
+     - Runs `rules.match()` on the asset independently
+  5. The main HTML is also YARA-scanned separately.
+  6. All fetched bytes are merged into a single buffer for heuristic analysis.
 
 ### Phase 3: Analysis
 1. **YARA Scan**: The byte buffer is passed to the C-based YARA engine.
-   - *Output*: List of Rule Names (e.g., `WEB_Forced_Download_High`) and the specific `strings` that matched.
+   - *Output*: List of Rule Names (e.g., `WEB_Forced_Download_High`, `Emotet_Family`) and the specific `strings` that matched, with ±60-character context snippets.
 2. **Heuristic Scan**: Python logic runs regex checks for patterns too complex for simple YARA strings:
-   - *Count Redirects*: `window.location` > 3 times?
-   - *Count Obfuscation*: `eval()` + `unescape()` > 5 times?
+   - *Count Redirects*: `window.location` ≥ 3 times?
+   - *Count Obfuscation*: `eval()` + `unescape()` ≥ 5 times?
 
 ### Phase 4: Scoring
 The final score is calculated:
@@ -131,7 +166,7 @@ The final score is calculated:
 
 ### Phase 5: Response
 A JSON object is returned to the frontend.
-- **Transparency**: We send back the *actual snippets* of code that triggered the alarm.
+- **Transparency**: We send back the *actual snippets* of code that triggered the alarm, plus the full YARA rule source for each match.
 - **Cleanup**: The `content` variable goes out of scope, and Python's garbage collector frees the RAM. Nothing remains.
 
 ---
@@ -140,13 +175,18 @@ A JSON object is returned to the frontend.
 
 ```mermaid
 graph TD
-    User[User] -->|Uploads PDF/URL| API["Flask API (RAM Only)"]
+    User[User] -->|Uploads File/URL| API["Flask API (RAM Only)"]
     API -->|1. Validation| SSRF["SSRF Protection<br>(No internal IPs)"]
-    SSRF -->|2. Extraction| Bytes[Raw Byte Stream]
-    Bytes -->|3. Feed| YARA[YARA Engine]
-    Bytes -->|4. Feed| Heur[Python Heuristics]
+    SSRF -->|2. Fetch HTML| HTML[Raw HTML Bytes]
+    HTML -->|3. Parse DOM| BS["BeautifulSoup<br>(Find scripts & CSS)"]
+    BS -->|4. Parallel Fetch| Pool["ThreadPoolExecutor<br>(10 workers, 2s timeout)"]
+    Pool -->|5. Per-Asset YARA| YARA[YARA Engine]
+    HTML -->|5. Main HTML YARA| YARA
+    Pool -->|6. Merge Bytes| Merged[Combined Buffer]
+    HTML -->|6. Merge Bytes| Merged
+    Merged -->|7. Regex Checks| Heur[Python Heuristics]
     YARA -->|Matches| Score[Scoring Logic]
-    Heur -->|Matches| Score
+    Heur -->|Bonus Points| Score
     Score -->|JSON Result| Frontend[Frontend UI]
-    API -.->|Garbage Collection| Void((Deleted))
+    API -..->|Garbage Collection| Void((Deleted))
 ```

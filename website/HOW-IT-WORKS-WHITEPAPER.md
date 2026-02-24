@@ -8,8 +8,8 @@ This document serves as a comprehensive technical reference for the malware scan
 
 The system operates as a stateless, serverless-compatible microservice. It is designed to minimize the attack surface by avoiding persistent storage and executing all analysis in ephemeral memory.
 
-### The Pipeline Logic (\`api/index.py\`)
-The entire lifecycle of a request is handled within a single execution context in \`scan()\`:
+### The Pipeline Logic (`api/index.py`)
+The entire lifecycle of a request is handled within a single execution context in `scan()`:
 
 ```python
 # api/index.py (Simplified)
@@ -19,11 +19,16 @@ def scan():
     # 1. Ingestion
     if 'file' in request.files:
         f = request.files['file']
-        content = f.read()  # Loaded into RAM
-    
-    # 2. Analysis
+        content = f.read()  # File upload → raw bytes loaded into RAM
+
+    elif 'url' in request.form:
+        # URL scan → raw HTML bytes
+        resp = requests.get(url, ...)
+        html_content = resp.content
+
+    # 2. Analysis (YARA + Parallel Asset Scanning)
     matches = rules.match(data=content)
-    
+
     # 3. Heuristics
     heuristics_score = 0
     # ... checks for redirects and obfuscation ...
@@ -35,10 +40,10 @@ def scan():
     })
 ```
 
-1.  **Ingestion**: `Checking Content-Type` (detecting `multipart/form-data` vs `application/x-www-form-urlencoded`).
+1.  **Ingestion**: Detecting input type (`multipart/form-data` for files vs `application/x-www-form-urlencoded` for URLs).
 2.  **Normalization**: Converting all inputs into a unified `bytes` buffer.
 3.  **Analysis**: Running deterministic (YARA) and probabilistic (Heuristic) engines.
-4.  **Serialization**: returning a JSON response.
+4.  **Serialization**: Returning a JSON response.
 5.  **Teardown**: The Python garbage collector releases all memory handles.
 
 ---
@@ -63,11 +68,11 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
             hostname = parsed.hostname
             ip = socket.gethostbyname(hostname)
             ip_obj = ipaddress.ip_address(ip)
-            
+
             # Block valid private ranges (192.168.x.x, 10.x.x.x, etc.)
             if ip_obj.is_private or ip_obj.is_loopback:
                 return False
-            
+
             # Block AWS Metadata service
             if str(ip_obj) == "169.254.169.254":
                 return False
@@ -81,21 +86,72 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
     - **Technical Detail**: We intentionally disable SSL Certificate Verification. Malware sites often use self-signed or expired certificates. A standard browser would block these, but our scanner *must* inspect them.
     ```python
     # api/index.py
+    # URL scan → raw HTML bytes
     resp = requests.get(url, timeout=5, headers=req_headers, verify=False)
+    html_content = resp.content
     ```
 
-3.  **DOM Parsing & Recursion**:
+3.  **DOM Parsing & Asset Discovery**:
     - The HTML content is parsed into a DOM tree using `BeautifulSoup`.
     - The system performs a **Depth-1 Traversal**:
-        - It identifies all `<script src="...">` nodes.
-        - It identifies all `<link rel="stylesheet" href="...">` nodes.
+        - It identifies all `<script src="...">` nodes (up to 10).
+        - It identifies all `<link rel="stylesheet" href="...">` nodes (up to 10).
         - It resolves relative paths (e.g., `src="/js/app.js"`) to absolute URLs using `urllib.parse.urljoin`.
-    - **Constraint**: To prevent DoS (Denial of Service) via infinite recursion, we cap asset fetching at **10 files per type** and impose a **3-second timeout** per request.
     ```python
     # api/index.py
 
+    # 1. Collect Scripts
+    for tag in soup.find_all('script', src=True)[:10]:
+        assets_to_scan.append(('js', tag['src']))
+
+    # 2. Collect CSS
+    for tag in soup.find_all('link', rel='stylesheet', href=True)[:10]:
+        assets_to_scan.append(('css', tag['href']))
+    ```
+
+4.  **Parallel Asset Fetching & Scanning**:
+    - Each discovered asset is fetched and YARA-scanned **in parallel** using a `ThreadPoolExecutor` with up to 10 concurrent workers.
+    - **Per-Asset Safety Controls**:
+        - **SSRF Check**: Each asset URL is validated through `is_safe_url()` before fetching.
+        - **Timeout**: Strict 2-second timeout per asset to prevent hanging on unresponsive servers.
+        - **Size Limit**: 500KB maximum per asset to prevent memory exhaustion from oversized files.
+    - Each worker independently runs `rules.match(data=r.content)` on its asset, extracting match snippets in context (±60 characters around each match).
+
+    ```python
+    # api/index.py
+
+    def process_asset(asset_type, asset_path):
+        full_url = urljoin(url, asset_path)
+        if not is_safe_url(full_url): return None
+
+        # Strict 2s timeout for assets
+        r = requests.get(full_url, timeout=2, headers=req_headers, verify=False)
+        if r.status_code != 200: return None
+
+        # Size limit: 500KB per asset
+        if len(r.content) > 500 * 1024: return None
+
+        # YARA Scan on individual asset
+        matches = rules.match(data=r.content)
+        # ... extract snippets ...
+        return { "type": asset_type, "matches": results, "bytes": r.content }
+
+    # Execute parallel fetches
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         future_to_url = {executor.submit(process_asset, t, p): p for t, p in assets_to_scan}
+        for future in concurrent.futures.as_completed(future_to_url):
+            data = future.result()
+            if data:
+                match_details.extend(data['matches'])
+                asset_contents_bytes.append(data['bytes'])
+    ```
+
+    - **Why Parallel?**: A page may reference 15+ external JS/CSS files. Sequential fetching at 2s timeout each could take 30+ seconds. Parallel execution reduces worst-case to ~2-3 seconds total.
+    - **Post-Scan Merge**: After all threads complete, all fetched bytes are concatenated with the main HTML for the heuristic analysis phase:
+    ```python
+    content = html_content
+    for b in asset_contents_bytes:
+        content += b"\n" + b
     ```
 
 ### B. File Handling (Memory Safety)
@@ -104,6 +160,7 @@ When a user submits a URL, the backend acts as a **transparent forward proxy**.
     ```python
     if 'file' in request.files:
         f = request.files['file']
+        # File upload → raw bytes
         content = f.read()
         # No f.save() is ever called.
     ```
@@ -121,13 +178,43 @@ When we say YARA "matches strings," it is not looping through the file 50 times 
 -   **Single Pass**: This allows the engine to scan the file in a **single linear pass** (O(n) complexity, where n is file size).
 -   **Why this matters**: It means scanning for 100 viruses takes roughly the same time as scanning for 1 virus.
 
-### B1. Byte-Code vs. Text
-YARA does not "read text." It compares **hexadecimal byte sequences**.
--   **Example**: The rule `Executable_Header` looks for `MZ`.
--   **Internal Logic**: The engine looks for the byte `0x4D` followed immediately by `0x5A` at `offset 0` of the buffer.
--   **Handling Encodings**: If a rule specifies a string "eval", YARA searches for the ASCII bytes `65 76 61 6C`. The `nocase` modifier tells the engine to also accept `45 56 41 4C` (EVAL) and mixed permutations.
+### B. How String Matching Actually Works
 
-### B2. Implementation
+A common misconception is that YARA "converts strings to hex" before comparing. **It does not.** YARA operates directly on the raw byte stream and compares patterns byte-by-byte. Here is how each string type works:
+
+#### Plain-text Strings
+```yara
+$s1 = "<script>" nocase
+```
+YARA searches the raw bytes for the exact ASCII sequence `3C 73 63 72 69 70 74 3E` (the hex representation of `<script>`). The `nocase` modifier tells the engine to also accept uppercase variants like `3C 53 43 52 49 50 54 3E` (`<SCRIPT>`) and any mixed-case permutation. **No conversion happens** — the file's bytes are compared directly.
+
+#### ASCII + Wide Strings
+```yara
+$a = "RyukReadMe.txt" ascii wide nocase
+```
+The `ascii` modifier matches the normal single-byte encoding: `52 79 75 6B 52 65 61 64 4D 65 2E 74 78 74`.
+The `wide` modifier matches the UTF-16 little-endian encoding, where each character is followed by a null byte: `52 00 79 00 75 00 6B 00 ...`. This is critical for detecting malware targeting Windows systems, which internally use UTF-16 for string storage in executables.
+
+#### Byte-Level Conditions
+```yara
+condition:
+    uint16(0) == 0x5A4D
+```
+This reads the first 2 bytes of the file and checks if they equal `4D 5A` (the ASCII for `MZ`). This is the **PE (Portable Executable) magic header** — every `.exe` and `.dll` file starts with these bytes. This condition ensures the rule only fires on genuine Windows executables, not on web pages or text files.
+
+#### Regex Patterns
+```yara
+$loc1 = /window\.location(\.href)?\s*=\s*/ nocase
+```
+YARA compiles the regex and runs it against the byte stream. This matches patterns like `window.location =`, `window.location.href=`, etc., regardless of whitespace variations.
+
+#### Hex Blob Detection
+```yara
+$hexblob = /\\x[0-9a-fA-F]{2}(\\x[0-9a-fA-F]{2}){30,}/
+```
+This regex looks for long sequences of hex escape sequences **already written in the source code** (e.g., `\x90\x90\x90...` in a JavaScript file). It is detecting obfuscation patterns, not converting the file to hex.
+
+### C. Implementation
 We use the `yara-python` binding to execute the compiled rules against the memory buffer.
 
 ```python
@@ -136,20 +223,25 @@ We use the `yara-python` binding to execute the compiled rules against the memor
 # 1. Compile Rules on Startup
 rules = yara.compile(filepath=RULES_PATH)
 
-# 2. Match Content
+# 2. Match Content (raw bytes fed directly to the engine)
 matches = rules.match(data=content)
 
-# 3. Extract Snippets
+# 3. Extract Snippets with Context
 for m in matches:
     snippets = []
     for string_match in m.strings:
-        # extraction logic...
+        for instance in string_match.instances:
+            offset = instance.offset
+            start = max(0, offset - 60)
+            end = min(len(decoded_content), offset + len(instance.matched_data) + 60)
+            snippet = decoded_content[start:end].strip()
 ```
 
-### C. Condition Evaluation
+### D. Condition Evaluation
 YARA rules (in `api/rules/malware.yar`) allow complex boolean logic.
--   **Byte-Code vs. Text**: YARA compares hexadecimal byte sequences (e.g., `MZ` = `0x4D 0x5A`) rather than just "text."
 -   **Short-Circuiting**: If a rule condition is `filesize < 500KB` and the file is 600KB, the engine stops immediately.
+-   **Counting**: `2 of them` means at least 2 of the defined strings must match.
+-   **Negation**: `not (2 of ($bundler*))` excludes false positives from normal JavaScript bundlers.
 
 ```yara
 rule Suspicious_Script {
@@ -163,9 +255,49 @@ rule Suspicious_Script {
 
 ---
 
-## 4. Heuristic Analysis (Behavioral Logic)
+## 4. YARA Rule Catalog
 
-While YARA handles known signatures, we use Python `re` (Regular Expressions) for behavioral anomalies in `api/index.py`.
+Our rule set (`api/rules/malware.yar`) is divided into two categories based on what they scan.
+
+### A. Web-Focused Rules (Fire on URL Scans)
+These rules analyze HTML, JavaScript, and CSS content fetched from websites. They use `filesize` constraints but **do not** require the PE header, so they match web content.
+
+| Rule | Severity | What It Detects |
+|:---|:---|:---|
+| `Suspicious_Script` | Medium | Pages with 3+ of: `<script>`, `eval(`, `document.write`, `base64` |
+| `Executable_Header` | — | The `MZ` magic byte at offset 0 (PE file served via web) |
+| `Phishing_Keywords` | — | Social engineering phrases: "verify your account", "update payment", "urgent" |
+| `Auto_Redirect` | High | 2+ redirect mechanisms: `window.location =`, `meta refresh`, etc. |
+| `Hidden_Iframe` | High | Zero-dimension `<iframe>` elements used for drive-by downloads |
+| `WEB_Redirect_Primitives_Medium` | Medium | 3+ JS redirect primitives or excessive `window.open()` calls |
+| `WEB_MetaRefresh_Redirect_Medium` | Medium | HTML `<meta http-equiv="refresh">` with a URL redirect |
+| `WEB_Forced_Download_High` | High | JS patterns that trigger downloads: Blob URLs, `a[download]`, `msSaveBlob` |
+| `WEB_Permission_Abuse_Notifications_Push_High` | High | Notification permission requests combined with push subscription |
+| `WEB_JS_Obfuscation_Stack_Medium` | Medium | Layered obfuscation: `eval`/`new Function` + `atob`/`fromCharCode` + long encoded blobs, excluding normal bundlers |
+
+### B. PE/Executable Family Rules (Fire on File Uploads Only)
+These rules target specific malware families. They **all** require `uint16(0) == 0x5A4D` (the PE header), meaning they will **never trigger on URL scans** — only on uploaded `.exe`, `.dll`, or other PE files.
+
+| Rule | Family | Type | Key Signatures |
+|:---|:---|:---|:---|
+| `Emotet_Family` | Emotet | Banking Trojan | `Global\EMOTET` mutex, specific IE7 User-Agent string |
+| `Ryuk_Family` | Ryuk | Ransomware | `RyukReadMe.txt` ransom note, `.RYK` extension, "Wake up!" string |
+| `LockBit_Family` | LockBit | Ransomware | `LockBit` identifier, `Restore-My-Files.txt`, `.lockbit` extension |
+| `WannaCry_Family` | WannaCry | Ransomware | `WannaDecryptor` dropper, `mssecsvc.exe`, `tasksche.exe` service names |
+| `TrickBot_Family` | TrickBot | Banking Trojan | `TrickLoader` module, `client_id`/`group_tag` C2 config fields |
+| `QakBot_Family` | QakBot | Banking Trojan | `CoreDll.dll` loader, `botnet` identifier |
+| `AgentTesla_Family` | AgentTesla | Spyware | Specific User-Agent, SMTP exfiltration strings |
+| `RedLine_Family` | RedLine | Infostealer | Credential file targets: `passwords.txt`, `wallet.dat` |
+| `DarkComet_Family` | DarkComet | RAT | `DC_MUTEX`, `DCRAT` identifiers |
+| `CobaltStrike_Beacon` | Cobalt Strike | Post-Exploitation | `ReflectiveLoader` DLL injection, `Beacon` C2 framework strings |
+
+**Why the `uint16(0) == 0x5A4D` guard matters**: Without it, a webpage containing the text "LockBit" in a news article would be falsely flagged as ransomware. The PE header check ensures these rules only match actual Windows executables that contain these family-specific strings embedded in their binary.
+
+---
+
+## 5. Heuristic Analysis (Behavioral Logic)
+
+While YARA handles known signatures, we use Python `re` (Regular Expressions) for behavioral anomalies in `api/index.py`. The heuristic engine runs on the **combined** byte buffer (HTML + all fetched JS/CSS assets).
 
 ### Redirect Chain Detection
 **The Logic**: Phishing sites often bounce users through multiple URLs to hide the final destination.
@@ -202,13 +334,13 @@ if obf_count >= 5:
 
 ---
 
-## 5. Scoring Mathematics
+## 6. Scoring Mathematics
 The risk score is a deterministic calculation, not an AI guess.
 
 $$ Score = B + (M \times 10) + H $$
 
 -   **Base ($B$)**: 50 if matches > 0, else 0.
--   **Matches ($M$)**: Count of YARA rules matched.
+-   **Matches ($M$)**: Count of YARA rules matched (including per-asset matches from the parallel scan).
 -   **Heuristics ($H$)**: +20 for Redirects, +15 for Obfuscation.
 
 The result is capped at 100.
@@ -223,7 +355,7 @@ score = min(score, 100)
 
 ---
 
-## 6. Frontend Visualization Mechanics
+## 7. Frontend Visualization Mechanics
 
 Usage of `src/components/Scanner.tsx`. This component manages the UI state and drives the "simulation" of scanning activity.
 
@@ -270,7 +402,7 @@ The file is not sent as JSON. It is sent as `multipart/form-data`, the standard 
 const handleScan = async () => {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const response = await fetch("/api/scan", {
         method: "POST",
         body: formData,
@@ -281,43 +413,41 @@ const handleScan = async () => {
 
 ---
 
-## 7. Application Layout
+## 8. Rule Transparency
 
-The application layout is defined in `src/app/page.tsx`. It orchestrates the transition between the Scanner, Simplified Docs, and this Whitepaper using `framer-motion` for smooth animations.
+The backend parses the raw `.yar` file on startup and stores each rule's source text in a dictionary. When a rule matches, its full YARA source is included in the API response, allowing the frontend to display the exact rule that triggered the detection.
 
-```typescript
-// src/app/page.tsx
+```python
+# api/index.py
 
-export default function Home() {
-    const [currentView, setCurrentView] = useState<"scanner" | "simple" | "advanced">("scanner");
+rule_sources = {}  # rule_name -> raw YARA rule text
 
-    return (
-        <main>
-            {/* Navigation Menu */}
-            <MenuSheet currentView={currentView} onViewChange={setCurrentView} />
+raw_yar = open(RULES_PATH, 'r').read()
+for block in re.findall(r'(rule\s+\w+\s*\{...})', raw_yar, re.DOTALL):
+    name_match = re.match(r'rule\s+(\w+)', block)
+    if name_match:
+        rule_sources[name_match.group(1)] = block.strip()
 
-            {/* View Switcher with Animations */}
-            <AnimatePresence mode="wait">
-                {currentView === 'scanner' ? (
-                    <Scanner />
-                ) : (
-                    <CodeDocsViewer 
-                        content={currentView === 'simple' ? SIMPLE_DOCS : ADVANCED_DOCS} 
-                    />
-                )}
-            </AnimatePresence>
-        </main>
-    );
-}
+# In scan results:
+match_details.append({
+    "rule": m.rule,
+    "snippets": snippets,
+    "yaraRule": rule_sources.get(m.rule)  # Full rule source for transparency
+})
 ```
+
+This means **adding a new YARA rule is as simple as editing `malware.yar`** — the backend automatically picks it up on restart, parses its source, and includes it in any future match responses.
 
 ---
 
-## 8. Security Summary
+## 9. Security Summary
 
 | Vector | Defense Mechanism | Technical Source |
 |:---|:---|:---|
 | **Remote Code Execution (RCE)** | Passive Analysis | No `exec()`, `subprocess.call()`, or rendering engines used in `api/index.py`. |
-| **SSRF** | IP Filtering | `is_safe_url()` (socket + ipaddress check) in `api/index.py`. |
-| **DoS (Recursive Fetching)** | Limits & Timeouts | `timeout=2` and `max_workers=10` limits in `api/index.py`. |
+| **SSRF** | IP Filtering + Per-Asset Validation | `is_safe_url()` called on main URL **and** every discovered asset URL. |
+| **DoS (Recursive Fetching)** | Limits & Timeouts | Max 10 assets per type, `timeout=2` per asset, 500KB size cap, `max_workers=10`. |
+| **DoS (Resource Exhaustion)** | Size Limits | 500KB per asset, 500KB `filesize` constraint in most YARA rules. |
 | **Persistence** | RAM-Only | Files are read into memory variables and never saved to disk (`f.read()` vs `f.save()`). |
+| **False Positives (PE Rules on Web)** | `uint16(0) == 0x5A4D` Guard | Malware family rules require the PE header, preventing news articles about "LockBit" from triggering alerts. |
+| **False Positives (Bundled JS)** | Bundler Exclusion | `WEB_JS_Obfuscation_Stack_Medium` excludes files containing `__webpack_require__` or `__esModule`. |

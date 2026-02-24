@@ -66,6 +66,7 @@ def scan():
     try:
         if 'file' in request.files:
             f = request.files['file']
+            # File upload → raw bytes
             content = f.read()
             source = f.filename
         
@@ -80,6 +81,7 @@ def scan():
 
             source = url
             req_headers = {'User-Agent': 'Mozilla/5.0'}
+            # URL scan → raw HTML bytes
             resp = requests.get(url, timeout=5, headers=req_headers, verify=False)
             html_content = resp.content
 
