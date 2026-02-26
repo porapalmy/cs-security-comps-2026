@@ -1,0 +1,28 @@
+services:
+  yargen:
+    image: 425062443971.dkr.ecr.us-east-2.amazonaws.com/yara-lab-yargen:latest
+    network_mode: "none"
+    working_dir: /opt/yargen
+    user: "0:0"   # ensures it can write to the bind-mounted /opt/out
+    volumes:
+      - ./samples_repo:/opt/mal:ro
+      - ./rule_library/generated:/opt/out:rw
+      - ./yargen_dbs:/opt/yargen/dbs:rw
+
+  yara_scanner:
+    image: 425062443971.dkr.ecr.us-east-2.amazonaws.com/yara-lab-scanner:latest
+    network_mode: "none"
+    volumes:
+      - ./samples_repo:/samples:ro              # <-- UPDATED (was ./dropzone)
+      - ./rule_library/generated:/generated_rules:ro
+      - ./public_rules:/public_rules:ro
+      - ./scan_results:/results:rw
+      - ./scanner/scan.sh:/usr/local/bin/scan.sh:ro
+      - ./scanner/intel.json:/opt/intel.json:ro
+    environment:
+      MODE: "all"
+      MAX_SIZE_MB: "25"
+      INTEL_PATH: "/opt/intel.json"
+      ENRICH: "1"
+    entrypoint: ["/bin/sh", "-lc"]
+    command: ["/usr/local/bin/scan.sh"]
