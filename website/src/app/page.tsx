@@ -1,6 +1,7 @@
 "use client";
 
 import Scanner from "@/components/Scanner";
+import Navbar from "@/components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
@@ -38,9 +39,12 @@ export default function Home() {
             <div className="bg-mesh" />
             <div className="grid-overlay" />
 
+            {/* Navigation */}
+            <Navbar />
+
             {/* Content */}
             <motion.div
-                className="z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center flex-1"
+                className="z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center flex-1 pt-16"
                 variants={stagger}
                 initial="hidden"
                 animate="visible"
