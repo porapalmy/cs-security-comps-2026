@@ -243,10 +243,11 @@ def scan():
         else:
              analysis_log.append("✅ Heuristic Passed: Suspicious Redirects")
 
-        # Check 2: Obfuscation — require 5+ combined occurrences
+        # Check 2: Obfuscation — require 8+ combined occurrences
+        # (raised from 5 to avoid flagging pages that merely *describe* these functions)
         obfuscation_markers = ["eval(", "unescape(", "document.write("]
         obf_count = sum(decoded_content.lower().count(m) for m in obfuscation_markers)
-        if obf_count >= 5:
+        if obf_count >= 8:
              found_markers = [m for m in obfuscation_markers if m in decoded_content.lower()]
              analysis_log.append(f"❌ Heuristic Failed: Eval/Obfuscation ({obf_count} occurrences of: {', '.join(found_markers)})")
              heuristics_score += 15
