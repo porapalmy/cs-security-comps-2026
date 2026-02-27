@@ -15,7 +15,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "YARA Malware Scanner — Threat Detection Engine",
+  title: "ScanMal - Malware Scanner via YARA",
   description:
     "Upload files or scan URLs against YARA rules. Detect malware, obfuscation, forced redirects, and other web-based threats in real time.",
 };
