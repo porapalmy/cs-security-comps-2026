@@ -56,7 +56,7 @@ export default function Home() {
                 >
                     <div className="status-badge">
                         <span className="dot dot-cyan" />
-                        Powered with YARA
+                        Malware Scanner
                     </div>
                     {/* <div className="status-badge">
                         <span className="dot dot-green" />
@@ -72,9 +72,10 @@ export default function Home() {
                     <h1 className="text-5xl md:text-7xl font-bold tracking-[-0.04em] leading-[0.9]"
                         style={{ fontFamily: "var(--font-instrument), system-ui, sans-serif" }}
                     >
-                        <span className="text-gradient-white">Malware</span>
-                        <br />
-                        <span className="text-gradient-cyan">Scanner</span>
+                        {/* <span className="text-gradient-white">Malware</span>
+                        <br /> */}
+                        <span className="text-gradient-white">Scan</span>
+                        <span className="text-gradient-cyan">Mal</span>
                         <span
                             className="inline-block w-[3px] h-[0.75em] ml-2 align-baseline"
                             style={{
