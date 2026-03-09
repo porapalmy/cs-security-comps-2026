@@ -342,7 +342,7 @@ def scan():
             return jsonify({"error": "No content provided"}), 400
 
         # -----------------------------
-        # Heuristic Analysis (same as your original logic)
+        # Heuristic Analysis
         # -----------------------------
         analysis_log = []
         heuristics_score = 0
