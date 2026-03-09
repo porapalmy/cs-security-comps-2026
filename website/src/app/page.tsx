@@ -138,6 +138,13 @@ export default function Home() {
                     >
                         [ABOUT]
                     </button>
+                    <button
+                        onClick={() => window.open("https://github.com/porapalmy/cs-security-comps-2026", "_blank")}
+                        className="ml-2 hover:text-[var(--cyan)] transition-colors cursor-pointer"
+                        style={{ fontFamily: "var(--font-jetbrains), monospace" }}
+                    >
+                        [GITHUB]
+                    </button>
                 </div>
             </motion.footer>
 
