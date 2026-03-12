@@ -174,7 +174,7 @@ export default function Home() {
                                     Carleton College Security Comps 2026
                                 </h3>
                                 <p className="text-[var(--text-secondary)] mb-6 leading-relaxed" style={{ fontFamily: "var(--font-jetbrains)" }}>
-                                    Made by <br /> <span className="text-[var(--text-primary)]">Palmy, Rachel, Daniel, Jeremy</span>
+                                    Made by <br /> <span className="text-[var(--text-primary)]">Rachel A, Jeremy G, Palmy K, Daniel L</span>
                                     <br />
                                     Supervised by Jeff Onidch.
                                 </p>
