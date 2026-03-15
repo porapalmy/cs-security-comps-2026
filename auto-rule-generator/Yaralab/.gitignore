@@ -6,6 +6,6 @@ yargen_dbs/
 
 # secrets
 .env
-.DS_Store
+
 # misc
 *.log

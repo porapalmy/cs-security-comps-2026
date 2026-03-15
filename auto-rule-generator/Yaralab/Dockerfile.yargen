@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+# System deps (yara CLI + some common libs)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    yara \
+    ca-certificates \
+    git \
+    unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/yargen
+
+# Pull yarGen (Python3 port) from upstream
+# If you prefer pinning a specific tag/commit, replace with a commit hash.
+RUN git clone https://github.com/Neo23x0/yarGen.git .
+
+# Install Python deps
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create non-root user
+RUN useradd -m -u 10001 appuser
+USER appuser
+
+# Default command shows help
+CMD ["python", "yarGen.py", "--help"]

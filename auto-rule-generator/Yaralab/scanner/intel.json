@@ -1,0 +1,21 @@
+{
+  "AsyncRAT_Sharp": {
+    "family": "AsyncRAT",
+    "category": "RAT",
+    "confidence": "high",
+    "typical_behaviors": [
+      "remote access / command execution",
+      "persistence mechanisms",
+      "plugin-based capabilities (varies by build)",
+      "credential/access data theft (often via plugins)"
+    ],
+    "notes": "YARA match indicates similarity to known AsyncRAT artifacts. Treat as suspicious; confirm with further analysis."
+  },
+  "fake_sample": {
+    "family": "Test",
+    "category": "TestRule",
+    "confidence": "low",
+    "typical_behaviors": ["none"],
+    "notes": "Pipeline test rule — not a malware family verdict."
+  }
+}
