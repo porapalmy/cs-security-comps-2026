@@ -4,11 +4,11 @@ set -euo pipefail
 cd /home/ubuntu/malware-lab
 source venv_unified/bin/activate
 
-python3 palmy-scripts/run_pipeline.py \
+python3 manual-rule-lab/run_pipeline.py \
   --samples-root samples/files_exe \
   --categories Ransomware,Stealer,Trojan \
   --dataset-label file_bicluster_iterative \
-  --output-root palmy-scripts/file-pipeline \
+  --output-root manual-rule-lab/file-pipeline \
   --n-biclusters 6 \
   --max-features 600 \
   --max-iterations 6 \
@@ -17,4 +17,4 @@ python3 palmy-scripts/run_pipeline.py \
   --max-yaraqa-issues 10
 
 echo "File pipeline finished."
-echo "Outputs: /home/ubuntu/malware-lab/palmy-scripts/file-pipeline"
+echo "Outputs: /home/ubuntu/malware-lab/manual-rule-lab/file-pipeline"
