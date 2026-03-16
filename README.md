@@ -154,7 +154,7 @@ The root README emphasizes research methods and produced artifacts; module run i
 
 Core algorithms & techniques
 
-- Clustering / biclustering: group samples by extracted string and artifact features to create compact clusters suitable for rule seeding.
+- Biclustering: group samples by extracted string and artifact features to create compact clusters suitable for rules.
 - Rule generation: extract candidate strings and artifacts (automated tools such as yarGen are used), prioritize discriminative features, and produce YARA rule candidates based on string/opcode/API patterns.
 - Iterative Refinement: evaluate generated rules, inspect mismatches and false positives, and refine rules with a human-in-the-loop to improve precision and recall.
 - Rule evaluation: compute metrics (using yaraQA and custom scripts) such as coverage, false positive rate, cluster coverage, and rule-quality warnings.
