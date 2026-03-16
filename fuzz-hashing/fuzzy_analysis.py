@@ -18,7 +18,7 @@ def get_fuzzy_hash(filepath):
     except Exception as e:
         return None
 
-# --- 1. LOAD AND HASH ---
+#  LOAD AND HASH ---
 if not os.path.exists(MISSED_FILES_LOG):
     print(f"[!] Error: {MISSED_FILES_LOG} not found. Run baseline_check.py first!")
     exit()
@@ -34,12 +34,12 @@ for path in tqdm(file_list, desc="Hashing"):
     if h:
         hashes.append({'path': path, 'hash': h})
 
-# --- 2. DATABASE INDEXING (For Website Fallback) ---
+# DATABASE INDEXING (For Fallback)
 print(f"[+] Syncing results to database: {DB_PATH}")
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
-# Create table with chunk_size for faster website lookups
+# Create table with chunk_size for faster lookups
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS signatures (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +68,7 @@ for item in hashes:
 conn.commit()
 conn.close()
 
-# --- 3. CROSS-COMPARE (All-vs-All for Research) ---
+# CROSS-COMPARE (All-vs-all) ---
 print(f"[+] Comparing hashes (Threshold: {SIMILARITY_THRESHOLD}%)...")
 matches = []
 
@@ -86,7 +86,7 @@ for i in range(len(hashes)):
                 os.path.basename(hashes[i]['path']) == os.path.basename(hashes[j]['path'])
             ])
 
-# --- 4. SAVE CSV REPORT (For after_fuzzy.py) ---
+# SAVE CSV REPORT (for after_fuzzy.py) 
 with open(FUZZY_REPORT, 'w', newline='') as csv_file:
     writer = csv.writer(csv_file)
     writer.writerow(['File_1', 'File_2', 'Similarity_Score', 'Same_Filename'])
