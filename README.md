@@ -37,20 +37,23 @@ All components are organized into separate folders so they can be run independen
 
 ```
 Malware Collection (malware-lab)
-         │
-   ┌─────┴────────┐
-   │              │
-manual-rule-lab   auto-rule-generator
-(clustering +     (automatic rule generation)
- iterative rule
- refinement)
-         │
-   Rule Evaluation
-         │
-   Rule Improvement
-         │
+                │
+        ┌───────┴───────┐
+        │               │
+ manual-rule-lab   auto-rule-generator
+ (clustering +      (automatic rule
+  iterative rule     generation)
+  refinement)           │
+        │               │
+        └───────┬───────┘
+                │
+    ┌───────────┴───────────┐
+    │  Rule Evaluation &    │
+    │   Rule Improvement    │
+    └───────────┬───────────┘
+                │
    Blind Spot Analysis (fuzz-hashing)
-         │
+                │
    Deployment in Web Scanner (website)
 ```
 
