@@ -4,7 +4,7 @@
 
 ![Project Logo](./img/scanmal.png)
 
-ScanMal is a compact research and tooling repository for YARA-based malware detection, rule generation, and web scanning. It contains pipeline tooling for collecting malware samples, generating and refining YARA rules, evaluating rule quality, performing fuzzy-hash blind-spot analysis, and deploying rules into a web scanner.
+ScanMal is a compact research and tooling repository for YARA-based malware detection, rule generation, and web scanning. It contains pipeline tooling for collecting malware samples and biclustering, collecting and improving YARA rules, generating and refining YARA rules, evaluating rule quality, performing fuzzy-hash blind-spot analysis, and deploying rules into a web scanner.
 
 Authors: Rachel Azan, Jeremy G, Palmy Klangsathorn, Daniel Lumbu
 
@@ -47,7 +47,7 @@ manual-rule-lab   auto-rule-generator
  iterative rule
  refinement)
          │
-   Rule Evaluation
+   Rule Evaluation (yaraQA)
          │
    Rule Improvement
          │
@@ -66,7 +66,7 @@ This diagram maps to the modules described below. The goal is to move from raw s
 cs-security-comps-2026
 │
 ├── malware-lab            # sample collection & extraction
-├── manual-rule-lab        # clustering + iterative rule refinement
+├── manual-rule-lab        # clustering + yaraQA + iterative rule refinement
 ├── auto-rule-generator    # automatic rule generation (yarGen etc)
 ├── fuzz-hashing           # fuzzy-hash blind-spot analysis
 ├── website                # Next.js frontend + Flask API scanner
@@ -194,8 +194,6 @@ For website/backend run instructions see `website/README.md`.
 - Never commit malware samples or sensitive artifacts. Keep `samples/` and `samples/extracted/` out of git.
 - Consider adding `samples/` to your global or repo `.gitignore` if you keep datasets locally.
 - Perform all analysis in isolated VMs or containers. Do not run malware on your host.
-
-If you want, I can add `samples/` to `.gitignore` for you.
 
 ---
 
