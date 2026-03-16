@@ -1,6 +1,12 @@
 # gap-analysis-lab
 
-This folder contains the order of steps for fuzzy hashing on YARA rules:
+## Reasoning for doing Fuzzy Hashing\
+- A limitation of YARA rules is that it can only detect common malware in existence that we have considered in our samples right now. But for extreme malware cases that weren’t in our samples or if attackers improve their malware code overtime, our collection may not be able to detect it, so we needed to consider a gap that could be used to detect likely malicious files, even if our YARA rules don’t recognise future unknown malware. 
+
+- YARA rules ignore non malicious/inert files, such as images, gifs or non malicious html and phps files.  Even though some files in malware packages may not be malicious, they are purposely put there by the attacker. So even though attackers may improve and change their malware to make it undetectable by YARA rules, they usually don’t change their inert files. We decided to do an analysis of these non-malicious files that were not detectable by Yara rules by using a fuzzy hashing method.
+
+
+This folder contains the order of steps for fuzzy hashing on our YARA rules:
 
 1. Run baseline YARA audit against Bi-clustering and yarGen rulesets
 2. Identify and log malware samples that bypassed all current YARA detection
