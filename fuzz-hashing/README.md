@@ -8,12 +8,12 @@
 
 This folder contains the order of steps for fuzzy hashing on our YARA rules:
 
-1. Run baseline YARA audit against Bi-clustering and yarGen rulesets
+1. Run baseline YARA check against Bi-clustering and yarGen rulesets
 2. Identify and log malware samples that bypassed all current YARA detection
 3. Generate Context-Triggered Piecewise Hashes (fuzzy hashes) for all undetected samples
-4. Index malware signatures into a SQLite database for secondary website lookups
+4. Index malware signatures into a SQLite database for potential secondary website lookups
 5. Perform all-vs-all structural similarity cross-comparison of the undetected dataset
-6. Produce a final "Summary of Similarities" report identifying renamed malware mutations and evasion attempts
+6. Produce a final "Summary of Similarities" report identifying variations of non-malicious files.
 
 ## Requirements
 
@@ -23,10 +23,10 @@ This folder contains the order of steps for fuzzy hashing on our YARA rules:
 
 ## Files
 
-- `baseline_check.py`: Audits the library against existing rule groups to find detection gaps
+- `baseline_check.py`: Checks the library against existing rule groups to find detection gaps
 - `fuzzy_analysis.py`: Pipeline for ppdeep hashing, SQLite indexing, and similarity research
-- `after_fuzzy.py`: Filters research data to find renamed files with high structural similarity
-- `rachel-tests/`: Working directory for all CSV reports, logs, and detection databases
+- `after_fuzzy.py`: Filters research data to find renamed files with high similarity
+- `malware_fuzzy.db`: Hashing Database based on original run through comparing made YARA rules against samples
 
 ## Gap Analysis Pipeline
 

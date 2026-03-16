@@ -156,9 +156,9 @@ Core algorithms & techniques
 
 - Clustering / biclustering: group samples by extracted string and artifact features to create compact clusters suitable for rule seeding.
 - Rule generation: extract candidate strings and artifacts (automated tools such as yarGen are used), prioritize discriminative features, and produce YARA rule candidates based on string/opcode/API patterns.
-- Iterative refinement: evaluate generated rules, inspect mismatches and false positives, and refine rules with a human-in-the-loop to improve precision and recall.
+- Iterative Refinement: evaluate generated rules, inspect mismatches and false positives, and refine rules with a human-in-the-loop to improve precision and recall.
 - Rule evaluation: compute metrics (using yaraQA and custom scripts) such as coverage, false positive rate, cluster coverage, and rule-quality warnings.
-- Fuzzy-hash blind-spot analysis: use fuzzy-hash techniques (e.g., `ppdeep`/ssdeep) to find near-duplicates and variants that evade rules, then create targeted tests or rules.
+- Fuzzy-hash blind-spot analysis: In case YARA rules can't detect anything, use fuzzy-hash techniques (e.g., `ppdeep`/ssdeep) to find near-duplicates and variants based on non malicious files from the malware, then create targeted tests and hashes.
 
 Outputs & where to find them
 
