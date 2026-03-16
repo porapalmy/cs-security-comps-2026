@@ -1,4 +1,8 @@
-# cs-security-comps-2026
+# YARA: How to Detect Malware in Files and Websites
+
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
+[scanmal.com](https://scanmal.com/)
 
 This repository contains our 2026 CS Security Comps project.
 
@@ -18,6 +22,7 @@ change the username@ipaddress to your username and ip address!
 ## How to Run Locally
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) & npm
 - [Python 3.9+](https://www.python.org/)
 
@@ -25,6 +30,7 @@ change the username@ipaddress to your username and ip address!
 
 1. **Frontend Setup**
    Install the necessary Node dependencies for the web app:
+
    ```bash
    cd website
    npm install
@@ -33,31 +39,37 @@ change the username@ipaddress to your username and ip address!
 2. **Backend Setup**
    Create a Python virtual environment and install the required packages.
    _Note: If you are using a Mac/Linux machine, follow these commands:_
+
    ```bash
    cd website
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
    ```
-   *(On Windows, use `venv\Scripts\activate` instead of `source venv/bin/activate`)*
+
+   _(On Windows, use `venv\Scripts\activate` instead of `source venv/bin/activate`)_
 
 3. **Running the Application**
    You will need to run the backend and frontend simultaneously in two separate terminal windows.
 
    **Terminal 1 (Backend API):**
+
    ```bash
    cd website
    source venv/bin/activate
    python3 api/index.py
    ```
-   *(The backend API will run on port 5328)*
+
+   _(The backend API will run on port 5328)_
 
    **Terminal 2 (Frontend Web App):**
+
    ```bash
    cd website
    npm run dev
    ```
-   *(The Next.js frontend will run on port 3000)*
+
+   _(The Next.js frontend will run on port 3000)_
 
 4. **Access the App**
    Open your browser and navigate to [http://localhost:3000](http://localhost:3000). The frontend is configured to automatically route API requests to the backend.
