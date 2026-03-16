@@ -34,13 +34,13 @@ This folder contains the order of steps for fuzzy hashing on our YARA rules:
 cd /home/ubuntu/malware-lab/rachel-tests
 source venv_unified/bin/activate
 
-# 1. Baseline: Find what YARA is missing
+# 1. Baseline: Find what files YARA is missing
 python3 baseline_check.py
 
-# 2. Analysis: Cluster missed files by structural similarity
+# 2. Analysis: Based on target files missed, run the fuzzy hashing on them and then compare
 python3 fuzzy_analysis.py
 
-# 3. Report: Identify renamed malware mutations (Smoking Guns)
+# 3. Report: Give a summary of identified different files that have the similar hashes 
 python3 after_fuzzy.py
 
 
@@ -58,4 +58,4 @@ python3 after_fuzzy.py
 
 ### Final Mutation Report
 
-- `rachel-tests/summary_of_similarities.txt`: Detailed report of different filenames sharing similar content (70%+ similarity)
+- `rachel-tests/summary_of_similarities.txt`: Detailed report of different filenames sharing similar content depending on hash (70%+ similarity)
