@@ -34,7 +34,7 @@ for path in tqdm(file_list, desc="Hashing"):
     if h:
         hashes.append({'path': path, 'hash': h})
 
-# DATABASE INDEXING (For Fallback)
+# Database (For Fallback)
 print(f"[+] Syncing results to database: {DB_PATH}")
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
@@ -68,7 +68,7 @@ for item in hashes:
 conn.commit()
 conn.close()
 
-# CROSS-COMPARE (All-vs-all) ---
+# cross compare everything (All-vs-all) ---
 print(f"[+] Comparing hashes (Threshold: {SIMILARITY_THRESHOLD}%)...")
 matches = []
 

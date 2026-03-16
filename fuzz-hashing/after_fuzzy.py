@@ -4,7 +4,7 @@ import os
 # --- CONFIG ---
 FUZZY_REPORT = "/home/ubuntu/malware-lab/rachel-tests/fuzzy_matches.csv"
 SIMILARITY_SUMMARY_OUTPUT = "/home/ubuntu/malware-lab/rachel-tests/summary_of_similarities.txt"
-MIN_SCORE = 70  # about 70 because not too low or high may change later
+MIN_SCORE = 70  # about 70 because not too low or high as a passing point, may change later
 MAX_SCORE = 100
 
 def find_renamed_mutations():
@@ -15,7 +15,7 @@ def find_renamed_mutations():
     # load the CSV results from previous script
     df = pd.read_csv(FUZZY_REPORT)
 
-    # need to filter different filenames AND Similarity between 75-100
+    # need to filter different filenames AND Similarity between 70-100
     results = df[
         (df['Similarity_Score'] >= MIN_SCORE) & 
         (df['Same_Filename'] == False)

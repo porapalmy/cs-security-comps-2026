@@ -58,4 +58,4 @@ python3 after_fuzzy.py
 
 ### Final Mutation Report
 
-- `rachel-tests/summary_of_similarities.txt`: Detailed report of different filenames sharing similar content (70%+ similarity)
+- `rachel-tests/summary_of_similarities.txt`: Detailed report of different filenames sharing similar content depending on hash (70%+ similarity)
