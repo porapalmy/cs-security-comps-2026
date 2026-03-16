@@ -1,0 +1,70 @@
+[
+  {
+    "rule_name": "Cluster_0_Ransomware_Seed",
+    "cluster_id": 0,
+    "sample_count": 50,
+    "strings": [
+      "mode.",
+      "program",
+      "cannot",
+      ".rsrc",
+      ".text",
+      ".data"
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_5_Trojan_Seed",
+    "cluster_id": 5,
+    "sample_count": 11,
+    "strings": [
+      "been",
+      "your",
+      "start",
+      "next",
+      "version",
+      "control"
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_1_Trojan_Seed",
+    "cluster_id": 1,
+    "sample_count": 9,
+    "strings": [
+      "must",
+      "win32",
+      "under",
+      "data",
+      "r6t0",
+      "tobject"
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_2_Trojan_Seed",
+    "cluster_id": 2,
+    "sample_count": 5,
+    "strings": [
+      "androidmanifest.xml",
+      "meta-inf/cert.rsa3hb",
+      "meta-inf/cert.sf",
+      "meta-inf/manifest.mf"
+    ],
+    "min_match_count": 1
+  },
+  {
+    "rule_name": "Cluster_3_Trojan_Seed",
+    "cluster_id": 3,
+    "sample_count": 5,
+    "strings": [
+      ".cctor",
+      ".ctor",
+      "applicationsettingsbase",
+      "assemblycompanyattribute",
+      "assemblydescriptionattribute",
+      "assemblycopyrightattribute"
+    ],
+    "min_match_count": 3
+  }
+]

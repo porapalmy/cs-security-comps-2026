@@ -1,0 +1,8 @@
+{
+  "iteration": 5,
+  "sample_coverage": 0.27269245499808503,
+  "cluster_coverage": 0.6666666666666666,
+  "active_rules": 6,
+  "dead_rules": 0,
+  "yaraqa_issues": 0
+}

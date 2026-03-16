@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "returncode": 0,
+  "stdout": " \n                             ____    ___  \n     __  ______ __________ _/ __ \\  /   | \n    / / / / __ `/ ___/ __ `/ / / / / /| | \n   / /_/ / /_/ / /  / /_/ / /_/ / / ___ | \n   \\__, /\\__,_/_/   \\__,_/\\___\\_\\/_/  |_| \n  /____/                                  \n \n   Florian Roth, November 2023, 0.11.0\n \n",
+  "stderr": "Initializing regular expressions ...\nStarting the regex baseline measurements ... (this could take a moment)\nReading input files ...\n1 rule sets have been found and parsed\nAnalyzing rules for issues ...\nAnalyzing rules for issues ...\n0 rule issues have been found (all types)\n",
+  "output_path": "/home/ubuntu/malware-lab/palmy-scripts/web-pipeline/iterations/iter_01/yaraqa_issues.json",
+  "cmd": [
+    "/home/ubuntu/malware-lab/venv_unified/bin/python3",
+    "/home/ubuntu/malware-lab/rule-dev/tools/yaraQA/yaraQA.py",
+    "-d",
+    "/home/ubuntu/malware-lab/palmy-scripts/web-pipeline/iterations/iter_01/rules",
+    "-o",
+    "/home/ubuntu/malware-lab/palmy-scripts/web-pipeline/iterations/iter_01/yaraqa_issues.json"
+  ]
+}
