@@ -2,6 +2,8 @@
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
+![Project Logo](./img/scanmal.png)
+
 ScanMal is a compact research and tooling repository for YARA-based malware detection, rule generation, and web scanning. It contains pipeline tooling for collecting malware samples, generating and refining YARA rules, evaluating rule quality, performing fuzzy-hash blind-spot analysis, and deploying rules into a web scanner.
 
 Authors: Rachel Azan, Jeremy G, Palmy Klangsathorn, Daniel Lumbu
