@@ -1,7 +1,7 @@
 ```markdown
 # AutoRuleGeneration
 
-This directory contains the components used in our project to generate and experiment with YARA rules.
+This directory contains the components used in our project to generate and experiment with YARA rules for Auto Rule generation.
 
 The structure is divided into two main parts:
 
