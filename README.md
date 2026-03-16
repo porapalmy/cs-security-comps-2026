@@ -42,19 +42,18 @@ Malware Collection (malware-lab)
         │               │
  manual-rule-lab   auto-rule-generator
  (clustering +      (automatic rule
-  iterative rule     generation)
-  refinement)           │
+  rule improvement)      generation)
         │               │
         └───────┬───────┘
                 │
     ┌───────────┴───────────┐
-    │  Rule Evaluation &    │
-    │   Rule Improvement    │
+    │    Collection of      │
+    │   Improved rules      │
     └───────────┬───────────┘
                 │
    Blind Spot Analysis (fuzz-hashing)
                 │
-   Deployment in Web Scanner (website)
+      Web Scanner (website)
 ```
 
 This diagram maps to the modules described below. The goal is to move from raw samples → candidate rules → evaluated rules → robust rules deployed for scanning.
