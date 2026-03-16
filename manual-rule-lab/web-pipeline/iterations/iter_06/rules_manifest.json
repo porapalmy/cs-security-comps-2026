@@ -1,0 +1,86 @@
+[
+  {
+    "rule_name": "Cluster_2_javascript_Seed",
+    "cluster_id": 2,
+    "sample_count": 525,
+    "strings": [
+      "ihdr",
+      "iend",
+      "textsoftware",
+      "adobe",
+      "imagereadyq",
+      "gama"
+    ],
+    "min_match_count": 1
+  },
+  {
+    "rule_name": "Cluster_4_phishing_Seed",
+    "cluster_id": 4,
+    "sample_count": 374,
+    "strings": [
+      "type",
+      "name",
+      "typeof",
+      "object",
+      "title",
+      "number"
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_1_ExploitKit_Seed",
+    "cluster_id": 1,
+    "sample_count": 333,
+    "strings": [
+      "else",
+      "header",
+      "_server",
+      "fopen",
+      "empty",
+      "fclose"
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_5_ExploitKit_Seed",
+    "cluster_id": 5,
+    "sample_count": 326,
+    "strings": [
+      "/rdf:rdf",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns",
+      "http://ns.adobe.com/xap/1.0/mm/",
+      "http://ns.adobe.com/xap/1.0/",
+      "xmlns:rdf",
+      "rdf:rdf"
+    ],
+    "min_match_count": 4
+  },
+  {
+    "rule_name": "Cluster_3_ExploitKit_Seed",
+    "cluster_id": 3,
+    "sample_count": 177,
+    "strings": [
+      ".__file__.",
+      ".dll",
+      ".substr",
+      "__ln",
+      "__i--",
+      "__here."
+    ],
+    "min_match_count": 5
+  },
+  {
+    "rule_name": "Cluster_6_ExploitKit_Seed",
+    "cluster_id": 6,
+    "sample_count": 25,
+    "strings": [
+      "chrm",
+      "profile",
+      "9c3j3w",
+      "0iwfh",
+      "ahxlxn",
+      "fu3s"
+    ],
+    "min_match_count": 1
+  }
+]

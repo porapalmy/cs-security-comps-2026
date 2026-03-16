@@ -1,0 +1,110 @@
+{
+  "dataset_label": "file_bicluster_iterative",
+  "samples_root": "/home/ubuntu/malware-lab/samples/files_exe",
+  "categories": [
+    "Ransomware",
+    "Stealer",
+    "Trojan"
+  ],
+  "target_reached": false,
+  "iterations_executed": 6,
+  "targets": {
+    "sample_coverage": 0.7,
+    "cluster_coverage": 0.85,
+    "max_yaraqa_issues": 10
+  },
+  "initial_rules_file": "/home/ubuntu/malware-lab/palmy-scripts/file-pipeline/initial-rules/initial_cluster_rules.yar",
+  "final_rules_file": "/home/ubuntu/malware-lab/palmy-scripts/file-pipeline/final-results/final_improved_rules.yar",
+  "final_eval_summary": {
+    "samples_total": 83,
+    "samples_with_hits": 57,
+    "sample_coverage": 0.6867469879518072,
+    "clusters_total": 7,
+    "clusters_with_hits": 4,
+    "cluster_coverage": 0.5714285714285714,
+    "total_hits": 79,
+    "declared_rules": 5,
+    "active_rules": 4,
+    "dead_rules": 1,
+    "dead_rule_names": [
+      "Cluster_2_Trojan_Seed"
+    ],
+    "top_rules": [
+      {
+        "rule": "Cluster_0_Ransomware_Seed",
+        "hits": 55
+      },
+      {
+        "rule": "Cluster_3_Trojan_Seed",
+        "hits": 14
+      },
+      {
+        "rule": "Cluster_5_Trojan_Seed",
+        "hits": 7
+      },
+      {
+        "rule": "Cluster_1_Trojan_Seed",
+        "hits": 3
+      },
+      {
+        "rule": "Cluster_2_Trojan_Seed",
+        "hits": 0
+      }
+    ]
+  },
+  "final_yaraqa_summary": {
+    "total_issues": 0,
+    "by_type": {},
+    "by_level": {}
+  },
+  "iteration_metrics": [
+    {
+      "iteration": 1,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 3,
+      "dead_rules": 2,
+      "yaraqa_issues": 0
+    },
+    {
+      "iteration": 2,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 3,
+      "dead_rules": 2,
+      "yaraqa_issues": 0
+    },
+    {
+      "iteration": 3,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 3,
+      "dead_rules": 2,
+      "yaraqa_issues": 0
+    },
+    {
+      "iteration": 4,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 4,
+      "dead_rules": 1,
+      "yaraqa_issues": 0
+    },
+    {
+      "iteration": 5,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 4,
+      "dead_rules": 1,
+      "yaraqa_issues": 0
+    },
+    {
+      "iteration": 6,
+      "sample_coverage": 0.6867469879518072,
+      "cluster_coverage": 0.5714285714285714,
+      "active_rules": 4,
+      "dead_rules": 1,
+      "yaraqa_issues": 0
+    }
+  ]
+}

@@ -1,0 +1,372 @@
+{
+  "rules": {
+    "Cluster_0_Ransomware_Seed": {
+      "count": 55,
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/7ev3n.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Annabelle.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/BadRabbit.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Cerber5.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CoronaVirus.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoWall.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Dharma.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Fantom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GandCrab.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GoldenEye.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Krotten.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Locky.AZ.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NoMoreRansom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NotPetya.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PetrWrap",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Petya.A.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PolyRansom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PowerPoint.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedEye.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Satana.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Seftad.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/SporaRansomware.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/ViraLock.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCry.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCrypt0r.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WinlockerVB6Blacksod.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/satan.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Azorult.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Lokibot.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Alerta.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Ana.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/BlueScreen.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/ClassicShell.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Gas.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/HMBlocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/LoveYou.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInfected_newest.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstaller.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstallerRC.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/BossDaMajor/BossDaMajor.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/MrsMajor3.0.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/PCToaster.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Whiter.a.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rensenware.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/000.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Illerka.C.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/TaskILL.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/DeriaLock.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/InfinityCrypt.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MEMZ.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/NETFramework.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/Spark.exe"
+      ]
+    },
+    "Cluster_1_Trojan_Seed": {
+      "count": 3,
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/UIWIX.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FreeYoutubeDownloader.exe"
+      ]
+    },
+    "Cluster_2_Trojan_Seed": {
+      "count": 0,
+      "files": []
+    },
+    "Cluster_3_Trojan_Seed": {
+      "count": 14,
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Annabelle.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedEye.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Lokibot.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Ana.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/BossDaMajor/BossDaMajor.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rensenware.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/000.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Illerka.C.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/TaskILL.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/DeriaLock.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/InfinityCrypt.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/Spark.exe"
+      ]
+    },
+    "Cluster_5_Trojan_Seed": {
+      "count": 7,
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/7ev3n.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CoronaVirus.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FreeYoutubeDownloader.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MEMZ.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/NETFramework.exe"
+      ]
+    }
+  },
+  "per_cluster": {
+    "0": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/7ev3n.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Annabelle.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/BadRabbit.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Birele.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Cerber5.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CoronaVirus.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoWall.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Dharma.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Fantom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GandCrab.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GoldenEye.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Krotten.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Locky.AZ.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NoMoreRansom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NotPetya.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PetrWrap",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Petya.A.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PolyRansom.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PowerPoint.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedBoot.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedEye.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rokku.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Satana.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Seftad.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/SporaRansomware.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/ViraLock.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCry.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCrypt0r.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WinlockerVB6Blacksod.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Xyeta.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/satan.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Azorult.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Lokibot.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Alerta.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Ana.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/BlueScreen.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/ClassicShell.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Gas.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/HMBlocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/LoveYou.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInfected_newest.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstaller.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstallerRC.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/BossDaMajor/BossDaMajor.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/MrsMajor3.0.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/PCToaster.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/VeryFun.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Whiter.a.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe"
+      ],
+      "matches": {
+        "Cluster_0_Ransomware_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/7ev3n.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Annabelle.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/BadRabbit.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Cerber5.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CoronaVirus.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoLocker.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CryptoWall.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Dharma.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Fantom.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GandCrab.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/GoldenEye.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Krotten.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Locky.AZ.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NoMoreRansom.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/NotPetya.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PetrWrap",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Petya.A.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PolyRansom.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/PowerPoint.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedEye.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Satana.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Seftad.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/SporaRansomware.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/ViraLock.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCry.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WannaCrypt0r.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/WinlockerVB6Blacksod.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/satan.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Azorult.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Lokibot.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Alerta.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Ana.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/BlueScreen.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/ClassicShell.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Gas.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/HMBlocker.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/LoveYou.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInfected_newest.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstaller.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mist/MistInstallerRC.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/BossDaMajor/BossDaMajor.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/MrsMajor3.0.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/PCToaster.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Whiter.a.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe"
+        ],
+        "Cluster_5_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/7ev3n.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/CoronaVirus.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe"
+        ],
+        "Cluster_3_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Annabelle.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/RedEye.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Stealer/Lokibot.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Ana.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MrsMajors/BossDaMajor/BossDaMajor.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe"
+        ],
+        "Cluster_1_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Zika.exe"
+        ]
+      }
+    },
+    "1": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/UIWIX.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/ArcticBomb.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/ColorBug.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/DesktopPuzzle.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FlashKiller.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FreeYoutubeDownloader.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/IconDance.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Nostart.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Sevgi.a.exe"
+      ],
+      "matches": {
+        "Cluster_1_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/UIWIX.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FreeYoutubeDownloader.exe"
+        ],
+        "Cluster_5_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/FreeYoutubeDownloader.exe"
+        ]
+      }
+    },
+    "2": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Grave.apk",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Malum.apk",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Mobile_Legends_Adventure.apk",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/mobelejen.apk",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/vi4a.apk"
+      ],
+      "matches": {}
+    },
+    "3": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rensenware.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/000.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Illerka.C.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/TaskILL.exe"
+      ],
+      "matches": {
+        "Cluster_0_Ransomware_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rensenware.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/000.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Illerka.C.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/TaskILL.exe"
+        ],
+        "Cluster_5_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe"
+        ],
+        "Cluster_3_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/$uckyLocker.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/Rensenware.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/000.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Illerka.C.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/TaskILL.exe"
+        ]
+      }
+    },
+    "4": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/elite.apk"
+      ],
+      "matches": {}
+    },
+    "5": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/DeriaLock.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/InfinityCrypt.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Bolbi.vbs",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/BonziKill.txt",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Carewmr.vbs",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/DudleyTrojan.bat",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/L0Lz.bat",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MEMZ.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Offiz.js",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/NETFramework.exe",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/Spark.exe"
+      ],
+      "matches": {
+        "Cluster_0_Ransomware_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/DeriaLock.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/InfinityCrypt.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MEMZ.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/NETFramework.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/Spark.exe"
+        ],
+        "Cluster_3_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/DeriaLock.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Ransomware/InfinityCrypt.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/Spark.exe"
+        ],
+        "Cluster_5_Trojan_Seed": [
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/MEMZ.exe",
+          "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Spark/NETFramework.exe"
+        ]
+      }
+    },
+    "unassigned": {
+      "files": [
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/Frankenstein.doc",
+        "/home/ubuntu/malware-lab/samples/files_exe/Trojan/WindowsXPHorrorEdition.txt"
+      ],
+      "matches": {}
+    }
+  },
+  "summary": {
+    "samples_total": 83,
+    "samples_with_hits": 57,
+    "sample_coverage": 0.6867469879518072,
+    "clusters_total": 7,
+    "clusters_with_hits": 4,
+    "cluster_coverage": 0.5714285714285714,
+    "total_hits": 79,
+    "declared_rules": 5,
+    "active_rules": 4,
+    "dead_rules": 1,
+    "dead_rule_names": [
+      "Cluster_2_Trojan_Seed"
+    ],
+    "top_rules": [
+      {
+        "rule": "Cluster_0_Ransomware_Seed",
+        "hits": 55
+      },
+      {
+        "rule": "Cluster_3_Trojan_Seed",
+        "hits": 14
+      },
+      {
+        "rule": "Cluster_5_Trojan_Seed",
+        "hits": 7
+      },
+      {
+        "rule": "Cluster_1_Trojan_Seed",
+        "hits": 3
+      },
+      {
+        "rule": "Cluster_2_Trojan_Seed",
+        "hits": 0
+      }
+    ]
+  },
+  "errors": []
+}
