@@ -66,11 +66,10 @@ This diagram maps to the modules described below. The goal is to move from raw s
 cs-security-comps-2026
 │
 ├── malware-lab            # sample collection & extraction
-├── manual-rule-lab        # clustering + iterative rule refinement
+├── manual-rule-lab        # clustering + rule improvement
 ├── auto-rule-generator    # automatic rule generation (yarGen etc)
 ├── fuzz-hashing           # fuzzy-hash blind-spot analysis
 ├── website                # Next.js frontend + Flask API scanner
-├── scripts                # helper scripts (installers, run helpers)
 ├── requirements.txt       # pinned Python deps
 └── README.md              # this file
 ```
