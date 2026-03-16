@@ -213,13 +213,3 @@ If you want, I can add `samples/` to `.gitignore` for you.
 - Demonstrate deployment via a web scanner
 
 Deliverables include datasets, rule artifacts, evaluation metrics, and the web-based scanner.
-
----
-
-If you'd like, I can also:
-
-- update the remaining planning docs that still mention Ghidra
-- add `samples/` to `.gitignore`
-- add a small `scripts/run_local.sh` helper to start the frontend + backend locally
-
-Tell me which of those you'd like next.
