@@ -3,7 +3,7 @@ import os
 
 # --- CONFIG ---
 FUZZY_REPORT = "/home/ubuntu/malware-lab/rachel-tests/fuzzy_matches.csv"
-SMOKING_GUN_OUTPUT = "/home/ubuntu/malware-lab/rachel-tests/smoking_guns_summary.txt"
+SIMILARITY_SUMMARY_OUTPUT = "/home/ubuntu/malware-lab/rachel-tests/summary_of_similarities.txt"
 MIN_SCORE = 70  # about 70 because not too low or high may change later
 MAX_SCORE = 100
 
@@ -21,7 +21,7 @@ def find_renamed_mutations():
         (df['Same_Filename'] == False)
     ].sort_values(by='Similarity_Score', ascending=False)
 
-    with open(SMOKING_GUN_OUTPUT, 'w') as f:
+    with open(SIMILARITY_SUMMARY_OUTPUT, 'w') as f:
         f.write("="*80 + "\n")
         f.write(f"EVASION REPORT: DIFFERENT FILENAMES WITH SIMILAR CONTENT ({MIN_SCORE}-{MAX_SCORE}%)\n")
         f.write("="*80 + "\n\n")
@@ -43,7 +43,7 @@ def find_renamed_mutations():
                 f.write("-" * 80 + "\n")
 
     print(f"[+] Found {len(results)} suspicious renamed pairs.")
-    print(f"[+] Detailed report saved to: {SMOKING_GUN_OUTPUT}")
+    print(f"[+] Detailed report saved to: {SIMILARITY_SUMMARY_OUTPUT}")
 
 if __name__ == "__main__":
     find_renamed_mutations()

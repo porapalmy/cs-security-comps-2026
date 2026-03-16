@@ -1,6 +1,6 @@
 # gap-analysis-lab
 
-## Reasoning for doing Fuzzy Hashing\
+## Reasoning for doing Fuzzy Hashing
 - A limitation of YARA rules is that it can only detect common malware in existence that we have considered in our samples right now. But for extreme malware cases that weren’t in our samples or if attackers improve their malware code overtime, our collection may not be able to detect it, so we needed to consider a gap that could be used to detect likely malicious files, even if our YARA rules don’t recognise future unknown malware. 
 
 - YARA rules ignore non malicious/inert files, such as images, gifs or non malicious html and phps files.  Even though some files in malware packages may not be malicious, they are purposely put there by the attacker. So even though attackers may improve and change their malware to make it undetectable by YARA rules, they usually don’t change their inert files. We decided to do an analysis of these non-malicious files that were not detectable by Yara rules by using a fuzzy hashing method.
@@ -13,7 +13,13 @@ This folder contains the order of steps for fuzzy hashing on our YARA rules:
 3. Generate Context-Triggered Piecewise Hashes (fuzzy hashes) for all undetected samples
 4. Index malware signatures into a SQLite database for secondary website lookups
 5. Perform all-vs-all structural similarity cross-comparison of the undetected dataset
-6. Produce a final "Smoking Gun" report identifying renamed malware mutations and evasion attempts
+6. Produce a final "Summary of Similarities" report identifying renamed malware mutations and evasion attempts
+
+## Requirements
+
+- Python packages: `yara-python`, `ppdeep`, `py7zr`, `pandas`, `tqdm`, `sqlite3`
+- Access to the malware sample library at `/home/ubuntu/malware-lab/samples/extracted`
+- Pre-compiled YARA rules in `/home/ubuntu/malware-lab/yara-rules/web-yara` and `/home/ubuntu/yara-lab/rule_library/generated`
 
 ## Files
 
@@ -26,6 +32,7 @@ This folder contains the order of steps for fuzzy hashing on our YARA rules:
 
 ```bash
 cd /home/ubuntu/malware-lab/rachel-tests
+source venv_unified/bin/activate
 
 # 1. Baseline: Find what YARA is missing
 python3 baseline_check.py
@@ -51,10 +58,4 @@ python3 after_fuzzy.py
 
 ### Final Mutation Report
 
-- `rachel-tests/smoking_guns_summary.txt`: Detailed report of different filenames sharing similar content (70%+ similarity)
-
-## Requirements
-
-- Python packages: `yara-python`, `ppdeep`, `py7zr`, `pandas`, `tqdm`, `sqlite3`
-- Access to the malware sample library at `/home/ubuntu/malware-lab/samples/extracted`
-- Pre-compiled YARA rules in `/home/ubuntu/malware-lab/yara-rules/web-yara` and `/home/ubuntu/yara-lab/rule_library/generated`
+- `rachel-tests/summary_of_similarities.txt`: Detailed report of different filenames sharing similar content (70%+ similarity)
