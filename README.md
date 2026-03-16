@@ -98,7 +98,7 @@ git clone <repo-url>
 cd cs-security-comps-2026
 ```
 
-2. Create a virtual environment (recommended name: `scanmal-venv`):
+2. Create a virtual environment (reccommend):
 
 ```bash
 python3 -m venv scanmal-venv
@@ -107,7 +107,7 @@ python3 -m venv scanmal-venv
 3. Install pinned Python dependencies:
 
 ```bash
-# Activate the environment using your preferred method, then:
+# activate the environment using your preferred method, then:
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 # or use the project helper which accepts a venv name:
